@@ -1,0 +1,84 @@
+.app-container {
+    background-color: white;
+    font-size: calc(10px + 2vmin);
+    color: black;
+}
+
+.container-fluid {
+    padding-left: none !important;
+    padding-right: none !important;
+}
+
+.answer-column {
+    height: 50vh;
+}
+
+@font-face {
+    font-family: 'FritzQuadrata';
+    src: local('FritzQuadrata'),
+         url('./assets/fonts/FrizQuadrataTT.ttf') format('ttf');
+}
+
+@font-face {
+    font-family: 'OpenSans';
+    src: local('OpenSans'),
+         url('./assets/fonts/OpenSans.ttf') format('ttf');
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: local('Poppins'),
+         url('./assets/fonts/Poppins-Regular.ttf') format('ttf');
+}
+
+.wrong-answer, .right-answer {
+    display: none;
+}
+
+.correct, .incorrect {
+    display: block;
+}
+
+.button {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 100px;
+    padding-right: 100px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 2rem;
+    background-color: aqua;
+    border-color:rgb(0, 132, 255);
+}
+
+.button:hover {
+    background-color:rgb(7, 110, 206);
+    border-color:rgb(0, 114, 221);
+}
+
+.button-correct {
+    background-color:rgb(0, 197, 0);
+}
+
+.button-incorrect {
+    background-color: red;
+}
+
+.question-title, .score-title {
+    font-family: 'OpenSans';
+    font-size: 5em;
+    font-weight: bold;
+    /*font-style: italic;*/
+}
+
+.confetti-bg {
+    height: 100vh;
+    width: 100vw;
+}
+
+.champion-splash {
+    padding-top: 25px;
+}
