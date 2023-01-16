@@ -5,7 +5,7 @@
   "engines": {
     "node": "18.x"
   },
-  "stack": "heroku-20",
+  "type": "module",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
