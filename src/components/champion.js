@@ -55,7 +55,7 @@ class Champion extends React.Component {
 
     componentDidMount = () => {
         var champName = this.props.champName;
-        const champDataSource = `http://ddragon.leagueoflegends.com/cdn/12.16.1/data/en_US/champion/${champName}.json`;
+        const champDataSource = `https://ddragon.leagueoflegends.com/cdn/12.16.1/data/en_US/champion/${champName}.json`;
         console.log('champion from champion.js is ' + champName);
 
         this.fetchChamp(champName, champDataSource);
@@ -80,7 +80,7 @@ class Champion extends React.Component {
             );
         } else {
             var champName = this.props.champName;
-            var splashImage = `http://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champName}_0.jpg`;
+            var splashImage = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champName}_0.jpg`;
             console.log('champName is ' + champName + ' and splashImage is ' + splashImage);
 
             const styles = {
