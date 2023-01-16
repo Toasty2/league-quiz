@@ -310,8 +310,8 @@ class App extends React.Component {
         // confetti function
       });*/
 
-      // do this for 10 seconds
-      var duration = 10 * 1000;
+      // do this for 3 seconds
+      var duration = 3 * 1000;
       var end = Date.now() + duration;
 
       (function frame() {
