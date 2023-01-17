@@ -336,6 +336,20 @@ class App extends React.Component {
         }
       }());
 
+      const scoreText = [
+        "I guess you don't play League of Legends, huh?",
+        "Did you guess it?",
+        "Seems like you got lucky",
+        "Maybe you know one or two",
+        "Not bad, you knew a few",
+        "You got half of them!",
+        "Pretty good",
+        "Nice one, you only missed a few",
+        "Very good, you only missed a couple",
+        "Nearly a perfect score!",
+        "You a winner!"
+      ];
+
 
       return (
         <div id="app" className="App">
@@ -346,7 +360,7 @@ class App extends React.Component {
                 <div className="row">
                   <div className="col-12">
                     <h1 className="score-title">{parseInt(this.state.score)} / 10</h1>
-                    <h1 className="score-title">You a winner!</h1>
+                    <h1 className="score-title">{scoreText[parseInt(this.state.score)]}</h1>
                     <button onClick={this.resetQuiz}>Reset</button>
                   </div>
                 </div>
