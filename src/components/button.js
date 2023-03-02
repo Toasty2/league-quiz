@@ -21,16 +21,14 @@ class Button extends React.Component {
         var classes = this.state.buttonClass;
 
         return (
-            <div>
                 <button 
                     type="button"
-                    className={`button ${classes}`}
+                    className={`button answer-button ${classes}`}
                     onClick={this.onClick}
                     value={this.state.buttonValue}
                 >
                     {buttonText}
-                </button>
-            </div>
+                </button>   
         );
     }
 }

@@ -5,10 +5,11 @@ import logo from './logo.svg';
 import Champion from './components/champion';
 import Button from './components/button';
 import HeaderBar from './components/headerBar';
+import Stopwatch from './components/stopwatch';
 
 import './App.css';
 import './league.css';
-import 'bootstrap/dist/css/bootstrap.min.css'
+//import 'bootstrap/dist/css/bootstrap.min.css'
 
 class App extends React.Component {
   state = { 
@@ -243,24 +244,13 @@ class App extends React.Component {
       var champ = answers[i];
         // note: we are adding a key prop here to allow react to uniquely identify each
         // element in this array. see: https://reactjs.org/docs/lists-and-keys.html
-        buttons.push(<div className="col-6">
-          <Button id={champ} key={champ} buttonValue={champ} onClick={this.onAnswerClick} className={`${this.state.onClick == {champ} ? "button-correct" : ""}`} />
+        buttons.push(<div className="p-6 block">
+          <Button id={champ} key={champ} buttonValue={champ} onClick={this.onAnswerClick} className={`${this.state.onClick == {champ} ? "button-correct answer" : "answer"}`} />
         </div>);
     }
 
     return buttons;
   }
-
-  /*getRandomChamp = () => {
-    var champ = [];
-    var champName = this.state.correctAnswer.toString();
-
-    champ.push(
-      <Champion champName={this.state.correctAnswer} />
-    );
-
-    return champ;
-  }*/
 
   runNextRound = () => {
     var correctChamp = this.getRandomChamp();
@@ -287,7 +277,7 @@ class App extends React.Component {
   }
 
   render() {
-    console.log('champ is ' + this.state.correctAnswer);
+    //console.log('champ is ' + this.state.correctAnswer);
 
     if (this.state.round >= 10) {
       var myCanvas = document.createElement('canvas');
@@ -298,17 +288,6 @@ class App extends React.Component {
         resize: true,
         useWorker: true
       });
-      /*myConfetti({
-        particleCount: 350,
-        spread: 250,
-        origin: {
-          x: Math.random(),
-          // since they fall down, start a bit higher than random
-          y: Math.random() - 0.2
-        }
-        // any other options from the global
-        // confetti function
-      });*/
 
       // do this for 1.5 seconds
       var duration = 1.5 * 1000;
@@ -353,9 +332,7 @@ class App extends React.Component {
 
       return (
         <div id="app" className="App">
-          <HeaderBar />
-
-          <body>
+          <body className="container-bg">
             <div className="container app-container">
                 <div className="row">
                   <div className="col-12">
@@ -373,51 +350,46 @@ class App extends React.Component {
     else {
       return (
         <div className="App">
-          <HeaderBar />
-
-          <body>
-            <div className="container-fluid app-container">
-              <div className="row">
-                <div className="col-6">
-                <Champion champName={this.state.correctAnswer} />
-              </div>
-              <div className="col-6">
-                <div className="row">
-                  <div className="col-12 answer-column">
-                    <h1 className="question-title">Who dis?</h1>
-                    <div className="row">
-                      {this.state.answered ? "" : this.getRandomAnswers(3)}
+          <body className="container-bg">
+            <main className="app-container">
+              <div className="w-full lg:flex items-center">
+                <div className="p-6 mx-auto items-center">
+                  <Champion champName={this.state.correctAnswer} />
+                </div>
+                <div className="w-full lg:w-1/2">
+                  <div className="row">
+                    <div className="block basis-1/2">
+                      Your Score
+                      <h1 className="score-title text-center">
+                        {parseInt(this.state.score)} / 10
+                      </h1>
                     </div>
                   </div>
-                  <div className="col-12 answer-column">
-                    <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
-                      <img src="https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g" />
-                      <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
-                    </div>
-                    <div className={`wrong-answer ${!this.state.wasUserCorrect && this.state.answered ? "incorrect" : ""}`}>
-                      <img src="https://c.tenor.com/zIm8X37R8cIAAAAC/b99-chelsea-peretti.gif" />
-                      <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
-                    </div>
-                    
-                    <div className="row">
-                      <div className="col-6">
-                        Round 
-                        <h1 className="score-title">
-                          {parseInt(this.state.round)} / 10
-                        </h1>
-                      </div>
-                      <div className="col-6">
-                        Your Score
-                        <h1 className="score-title">
-                          {parseInt(this.state.score)} / 10
-                        </h1>
-                      </div>
+
+                  <h1 className="question-title">Who dis?</h1>
+                  <div className="block">
+                    {this.state.answered ? "" : this.getRandomAnswers(3)}
+                  </div>
+                  <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
+                    <img src="https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g" />
+                    <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
+                  </div>
+                  <div className={`wrong-answer ${!this.state.wasUserCorrect && this.state.answered ? "incorrect" : ""}`}>
+                    <img src="https://c.tenor.com/zIm8X37R8cIAAAAC/b99-chelsea-peretti.gif" />
+                    <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
+                  </div>
+                  
+                  <div className="flex-row">
+                    <div className="basis-1/2">
+                      Round 
+                      <h1 className="score-title text-center">
+                        {parseInt(this.state.round)} / 10
+                      </h1>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            </div>
+            </main>
           </body>
         </div>
       );
