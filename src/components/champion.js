@@ -94,8 +94,9 @@ class Champion extends React.Component {
             
 
             return (
-                <div className="ui relaxed divided list test champion-splash" >
-                    <img src={splashImage} />
+                <div className="ui relaxed divided list test champion-splash relative" >
+                    <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5" />
+                    <img src={splashImage} alt="Champion splash art" />
                     <h2 className="champion-reveal"></h2>
                 </div>
             );

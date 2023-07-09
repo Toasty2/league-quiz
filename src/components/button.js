@@ -23,10 +23,11 @@ class Button extends React.Component {
         return (
                 <button 
                     type="button"
-                    className={`button answer-button ${classes}`}
+                    className={`button answer-button relative text-center ${classes}`}
                     onClick={this.onClick}
                     value={this.state.buttonValue}
                 >
+                    <img src={require('../assets/img/button_border.png')} alt="" className="absolute -top-1.5 left-0" />
                     {buttonText}
                 </button>   
         );

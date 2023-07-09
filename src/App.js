@@ -244,7 +244,7 @@ class App extends React.Component {
       var champ = answers[i];
         // note: we are adding a key prop here to allow react to uniquely identify each
         // element in this array. see: https://reactjs.org/docs/lists-and-keys.html
-        buttons.push(<div className="p-6 block">
+        buttons.push(<div className="p-6">
           <Button id={champ} key={champ} buttonValue={champ} onClick={this.onAnswerClick} className={`${this.state.onClick == {champ} ? "button-correct answer" : "answer"}`} />
         </div>);
     }
@@ -352,22 +352,22 @@ class App extends React.Component {
         <div className="App">
           <body className="container-bg">
             <main className="app-container">
-              <div className="w-full lg:flex items-center">
-                <div className="p-6 mx-auto items-center">
+              <div className="grid grid-cols-2 items-center">
+                <div className="py-6 mx-auto">
                   <Champion champName={this.state.correctAnswer} />
                 </div>
-                <div className="w-full lg:w-1/2">
-                  <div className="row">
-                    <div className="block basis-1/2">
-                      Your Score
-                      <h1 className="score-title text-center">
-                        {parseInt(this.state.score)} / 10
-                      </h1>
+                <div className="py-6 items-center">
+                  <div className="grid grid-cols-2">
+                    <div className="score-title text-left uppercase">
+                      Score: {parseInt(this.state.score)} / 10
+                    </div>
+                    <div className="score-title uppercase">
+                      Timer
                     </div>
                   </div>
 
-                  <h1 className="question-title">Who dis?</h1>
-                  <div className="block">
+                  
+                  <div className="grid grid-cols-2">
                     {this.state.answered ? "" : this.getRandomAnswers(3)}
                   </div>
                   <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
@@ -380,11 +380,8 @@ class App extends React.Component {
                   </div>
                   
                   <div className="flex-row">
-                    <div className="basis-1/2">
-                      Round 
-                      <h1 className="score-title text-center">
-                        {parseInt(this.state.round)} / 10
-                      </h1>
+                    <div className="score-title text-left uppercase">
+                      Round: {parseInt(this.state.round)} / 10
                     </div>
                   </div>
                 </div>

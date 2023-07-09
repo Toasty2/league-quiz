@@ -75,7 +75,6 @@
     font-family: "Beaufort";
     font-weight: 900;
     letter-spacing: 0em;
-    text-align: left;
 }
 
 .button:hover {
@@ -125,7 +124,6 @@
     font-weight: 900;
     line-height: 113.76px;
     letter-spacing: -0.01em;
-    text-align: left;
     color: #F0E6D2;
     text-transform: uppercase;
 }
