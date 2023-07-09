@@ -352,7 +352,7 @@ class App extends React.Component {
         <div className="App">
           <body className="container-bg">
             <main className="app-container">
-              <div className="grid grid-cols-2 items-center">
+              <div className="grid grid-cols-1 md:grid-cols-2 items-center">
                 <div className="py-6 mx-auto">
                   <Champion champName={this.state.correctAnswer} />
                 </div>
@@ -367,7 +367,7 @@ class App extends React.Component {
                   </div>
 
                   
-                  <div className="grid grid-cols-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2">
                     {this.state.answered ? "" : this.getRandomAnswers(3)}
                   </div>
                   <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
