@@ -48,3 +48,18 @@ export function getChampionIdMap() {
 export function getChampionNames() {
     return getChampionList().then(({ champions }) => champions.map(champ => champ.name));
 }
+
+export function getSplashArtUrl(champId) {
+    return `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champId}_0.jpg`;
+}
+
+// Resolves once the image has loaded (or failed) - failing shouldn't ever
+// block a whole batch of preloads, so onerror resolves too, not rejects.
+export function preloadImage(url) {
+    return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(url);
+        img.onerror = () => resolve(url);
+        img.src = url;
+    });
+}

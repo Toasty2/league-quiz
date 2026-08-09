@@ -6,7 +6,7 @@ import Champion from './components/champion';
 import Button from './components/button';
 import HeaderBar from './components/headerBar';
 import Stopwatch from './components/stopwatch';
-import { getChampionNames } from './apis/ddragon';
+import { getChampionNames, getChampionIdMap, getSplashArtUrl, preloadImage } from './apis/ddragon';
 import { fetchGifPool } from './apis/giphy';
 
 import './App.css';
@@ -30,12 +30,14 @@ class App extends React.Component {
     super(props);
 
     this.state = {
+      questions: [],
       correctAnswer: '',
       answerOptions: [],
       score: 0,
       round: 0,
       loading: true,
       started: false,
+      preparingQuiz: false,
       finished: false,
       elapsedMs: 0,
       correctGifPool: [DEFAULT_CORRECT_GIF],
@@ -48,9 +50,44 @@ class App extends React.Component {
     this.stopTimer();
   }
 
+  // Picks all rounds' questions and preloads their splash art in parallel.
+  generateQuestionSet = (amount = 10) => {
+    var questions = [];
+    for (var i = 0; i < amount; i++) {
+      var correctChamp = this.getRandomChamp();
+      questions.push({
+        correctAnswer: correctChamp,
+        answerOptions: this.pickAnswerOptions(correctChamp)
+      });
+    }
+
+    return getChampionIdMap().then(idsByName => {
+      var preloads = questions.map(question => {
+        var champId = idsByName[question.correctAnswer] || question.correctAnswer;
+        return preloadImage(getSplashArtUrl(champId));
+      });
+
+      return Promise.all(preloads).then(() => questions);
+    });
+  }
+
   startQuiz = () => {
-    this.setState({ started: true });
-    this.startTimer();
+    if (this.state.preparingQuiz || this.state.started) {
+      return;
+    }
+
+    this.setState({ preparingQuiz: true });
+
+    this.questionSetPromise.then(questions => {
+      this.setState({
+        questions: questions,
+        correctAnswer: questions[0].correctAnswer,
+        answerOptions: questions[0].answerOptions,
+        started: true,
+        preparingQuiz: false
+      });
+      this.startTimer();
+    });
   }
 
   startTimer = () => {
@@ -77,19 +114,11 @@ class App extends React.Component {
   componentDidMount = () => {
     getChampionNames().then(champNames => {
       this.champNames = champNames;
-      var correctChamp = this.getRandomChamp();
+      this.questionSetPromise = this.generateQuestionSet(10);
 
-      this.setState({
-        correctAnswer: correctChamp,
-        answerOptions: this.pickAnswerOptions(correctChamp),
-        loading: false
-      });
+      this.setState({ loading: false });
     });
 
-    // Secondary/non-blocking: fetch extra correct/incorrect GIFs once, in the
-    // background, and fold them into the pool whenever they arrive. Doesn't
-    // gate `loading` - the quiz works fine with just the two default GIFs
-    // until (and unless) this resolves.
     fetchGifPool('correct').then(gifs => {
       if (gifs.length > 0) {
         this.setState(prevState => ({
@@ -154,7 +183,7 @@ class App extends React.Component {
 
   onAnswerClick = (onClick) => {
     (onClick == this.state.correctAnswer) ? this.handleCorrectAnswer(onClick) : this.handleIncorrectAnswer();
-    console.log('Correct answer is ' + this.state.correctAnswer + ' User selected ' + onClick + ' score is ' + this.state.score);
+    //console.log('Correct answer is ' + this.state.correctAnswer + ' User selected ' + onClick + ' score is ' + this.state.score);
   }
 
   // Picks a GIF from an already-fetched pool. Called once per round, at the
@@ -200,10 +229,6 @@ class App extends React.Component {
     return champList;
   }
 
-  // Picks the set of champion names shown as answer options for a round.
-  // Called once when a round starts (componentDidMount / runNextRound), not
-  // from render - render runs far more often than "a new round started", and
-  // this involves randomness that should only happen once per round.
   pickAnswerOptions = (correctAnswer, amount = 3) => {
     var answers = this.getRandomChamp(amount);
     // Slot in the correct answer
@@ -211,7 +236,7 @@ class App extends React.Component {
     // Randomise the array
     this.shuffleArray(answers);
 
-    console.log(answers);
+    //console.log(answers);
 
     return answers;
   }
@@ -237,15 +262,14 @@ class App extends React.Component {
       return;
     }
 
-    var correctChamp = this.getRandomChamp();
-    console.log('running next round. Champ is ' + correctChamp[0]);
+    var nextQuestion = this.state.questions[this.state.round];
+    //console.log('running next round. Champ is ' + nextQuestion.correctAnswer[0]);
 
     this.setState({
-      correctAnswer: correctChamp,
-      answerOptions: this.pickAnswerOptions(correctChamp),
+      correctAnswer: nextQuestion.correctAnswer,
+      answerOptions: nextQuestion.answerOptions,
       answered: false,
-      wasUserCorrect: false,
-      champName: correctChamp
+      wasUserCorrect: false
     });
   }
 
@@ -264,6 +288,12 @@ class App extends React.Component {
   render() {
     //console.log('champ is ' + this.state.correctAnswer);
 
+    if (this.state.loading) {
+      return (
+        <div className="App">Loading champions...</div>
+      );
+    }
+
     if (!this.state.started) {
       return (
         <div className="App">
@@ -271,17 +301,11 @@ class App extends React.Component {
             <main className="app-container">
               <div className="start-screen">
                 <h1 className="question-title">League of Legends Quiz</h1>
-                <Button id="startQuiz" buttonValue="Start" onClick={this.startQuiz} />
+                <Button id="startQuiz" buttonValue={this.state.preparingQuiz ? "Preparing..." : "Start"} onClick={this.startQuiz} />
               </div>
             </main>
           </div>
         </div>
-      );
-    }
-
-    if (this.state.loading) {
-      return (
-        <div className="App">Loading champions...</div>
       );
     }
 

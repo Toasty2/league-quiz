@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { getLatestVersion, getChampionIdMap } from '../apis/ddragon';
+import { getLatestVersion, getChampionIdMap, getSplashArtUrl } from '../apis/ddragon';
 
 class Champion extends React.Component {
 
@@ -136,7 +136,7 @@ class Champion extends React.Component {
         }
 
         if (content.type === 'splash') {
-            var splashImage = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${content.champId}_0.jpg`;
+            var splashImage = getSplashArtUrl(content.champId);
             return (
                 <div className="ui relaxed divided list test champion-splash relative">
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
