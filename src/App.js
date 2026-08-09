@@ -35,11 +35,38 @@ class App extends React.Component {
       score: 0,
       round: 0,
       loading: true,
+      started: false,
       finished: false,
+      elapsedMs: 0,
       correctGifPool: [DEFAULT_CORRECT_GIF],
       incorrectGifPool: [DEFAULT_INCORRECT_GIF],
       resultGifUrl: DEFAULT_CORRECT_GIF
     };
+  }
+
+  componentWillUnmount = () => {
+    this.stopTimer();
+  }
+
+  startQuiz = () => {
+    this.setState({ started: true });
+    this.startTimer();
+  }
+
+  startTimer = () => {
+    var startTime = Date.now();
+
+    this.timerInterval = setInterval(() => {
+      this.setState({ elapsedMs: Date.now() - startTime });
+    }, 100);
+  }
+
+  stopTimer = () => {
+    clearInterval(this.timerInterval);
+  }
+
+  formatElapsedTime = (totalMs) => {
+    return (totalMs / 1000).toFixed(3);
   }
 
   componentDidMount = () => {
@@ -78,6 +105,7 @@ class App extends React.Component {
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.finished && !prevState.finished) {
       this.celebrateWin();
+      this.stopTimer();
     }
   }
 
@@ -234,6 +262,21 @@ class App extends React.Component {
   render() {
     //console.log('champ is ' + this.state.correctAnswer);
 
+    if (!this.state.started) {
+      return (
+        <div className="App">
+          <div className="container-bg">
+            <main className="app-container">
+              <div className="start-screen">
+                <h1 className="question-title">League of Legends Quiz</h1>
+                <Button id="startQuiz" buttonValue="Start" onClick={this.startQuiz} />
+              </div>
+            </main>
+          </div>
+        </div>
+      );
+    }
+
     if (this.state.loading) {
       return (
         <div className="App">Loading champions...</div>
@@ -288,7 +331,7 @@ class App extends React.Component {
                       Score: {parseInt(this.state.score)} / 10
                     </div>
                     <div className="score-title uppercase">
-                      Timer
+                      {this.formatElapsedTime(this.state.elapsedMs)}
                     </div>
                   </div>
 
