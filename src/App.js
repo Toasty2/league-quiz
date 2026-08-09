@@ -69,6 +69,11 @@ class App extends React.Component {
     return (totalMs / 1000).toFixed(3);
   }
 
+  calculateFinalScore = () => {
+    var elapsedSeconds = this.state.elapsedMs / 1000;
+    return Math.max(0, Math.round(this.state.score * 1000 - elapsedSeconds * 10));
+  }
+
   componentDidMount = () => {
     getChampionNames().then(champNames => {
       this.champNames = champNames;
@@ -307,6 +312,7 @@ class App extends React.Component {
                   <div className="col-12">
                     <h1 className="score-title">{parseInt(this.state.score)} / 10</h1>
                     <h1 className="score-title">{scoreText[parseInt(this.state.score)]}</h1>
+                    <h1 className="score-title">Final Score: {this.calculateFinalScore()}</h1>
                     <button onClick={this.resetQuiz}>Reset</button>
                   </div>
                 </div>
