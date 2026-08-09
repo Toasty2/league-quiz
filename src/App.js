@@ -35,6 +35,7 @@ class App extends React.Component {
       score: 0,
       round: 0,
       loading: true,
+      finished: false,
       correctGifPool: [DEFAULT_CORRECT_GIF],
       incorrectGifPool: [DEFAULT_INCORRECT_GIF],
       resultGifUrl: DEFAULT_CORRECT_GIF
@@ -75,7 +76,7 @@ class App extends React.Component {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    if (this.state.round >= 10 && prevState.round < 10) {
+    if (this.state.finished && !prevState.finished) {
       this.celebrateWin();
     }
   }
@@ -201,6 +202,11 @@ class App extends React.Component {
   }
 
   runNextRound = () => {
+    if (this.state.round >= 10) {
+      this.setState({ finished: true });
+      return;
+    }
+
     var correctChamp = this.getRandomChamp();
     console.log('running next round. Champ is ' + correctChamp[0]);
 
@@ -234,7 +240,7 @@ class App extends React.Component {
       );
     }
 
-    if (this.state.round >= 10) {
+    if (this.state.finished) {
       const scoreText = [
         "I guess you don't play League of Legends, huh?",
         "Did you guess it?",
@@ -292,11 +298,11 @@ class App extends React.Component {
                   </div>
                   <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
                     <img src={this.state.resultGifUrl} />
-                    <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
+                    <Button id="nextRound" buttonValue={this.state.round >= 10 ? "See results" : "Next round"} onClick = {this.runNextRound} />
                   </div>
                   <div className={`wrong-answer ${!this.state.wasUserCorrect && this.state.answered ? "incorrect" : ""}`}>
                     <img src={this.state.resultGifUrl} />
-                    <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
+                    <Button id="nextRound" buttonValue={this.state.round >= 10 ? "See results" : "Next round"} onClick = {this.runNextRound} />
                   </div>
                   
                   <div className="flex-row">
