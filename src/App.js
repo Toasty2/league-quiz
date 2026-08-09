@@ -186,7 +186,7 @@ class App extends React.Component {
       return (
         <div id="app" className="App">
           <div className="container-bg">
-            <div className="container app-container">
+            <div className="app-container">
                 <div className="row">
                   <div className="col-12">
                     <h1 className="score-title">{parseInt(this.state.score)} / 10</h1>
