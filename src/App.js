@@ -332,7 +332,7 @@ class App extends React.Component {
 
       return (
         <div id="app" className="App">
-          <body className="container-bg">
+          <div className="container-bg">
             <div className="container app-container">
                 <div className="row">
                   <div className="col-12">
@@ -342,7 +342,7 @@ class App extends React.Component {
                   </div>
                 </div>
             </div>
-          </body>
+          </div>
 
         </div>
       );
@@ -350,7 +350,7 @@ class App extends React.Component {
     else {
       return (
         <div className="App">
-          <body className="container-bg">
+          <div className="container-bg">
             <main className="app-container">
               <div className="grid grid-cols-1 md:grid-cols-2 items-center">
                 <div className="py-6 mx-auto">
@@ -387,7 +387,7 @@ class App extends React.Component {
                 </div>
               </div>
             </main>
-          </body>
+          </div>
         </div>
       );
     }
