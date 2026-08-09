@@ -106,6 +106,10 @@
     white-space: nowrap;
 }
 
+.answer-button.answer {
+    width: 320px;
+}
+
 .answer-button::after {
     background-image: url('./assets/img/answer_button_overlay.png');
 }

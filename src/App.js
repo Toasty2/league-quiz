@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import Confetti from 'canvas-confetti';
 import logo from './logo.svg';
 //import Riot from './apis/riot';
@@ -37,6 +37,49 @@ class App extends React.Component {
     });
   }
 
+  componentDidUpdate = (prevProps, prevState) => {
+    if (this.state.round >= 10 && prevState.round < 10) {
+      this.celebrateWin();
+    }
+  }
+
+  celebrateWin = () => {
+    var myCanvas = document.createElement('canvas');
+    myCanvas.className = 'confetti-bg';
+    document.body.appendChild(myCanvas);
+
+    var myConfetti = Confetti.create(myCanvas, {
+      resize: true,
+      useWorker: true
+    });
+
+    // do this for 1.5 seconds
+    var duration = 1.5 * 1000;
+    var end = Date.now() + duration;
+
+    (function frame() {
+      // launch a few confetti from the left edge
+      myConfetti({
+        particleCount: 7,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 }
+      });
+      // and launch a few from the right edge
+      myConfetti({
+        particleCount: 7,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 }
+      });
+
+      // keep going until we are out of time
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  }
+
 
   onAnswerClick = (onClick) => {
     (onClick == this.state.correctAnswer) ? this.handleCorrectAnswer(onClick) : this.handleIncorrectAnswer();
@@ -47,7 +90,7 @@ class App extends React.Component {
     var newScore = this.state.score + 1;
     var newRound = this.state.round + 1;
 
-    this.setState({ 
+    this.setState({
       wasUserCorrect: true,
       answered: true,
       onClick: onClick,
@@ -59,7 +102,7 @@ class App extends React.Component {
   handleIncorrectAnswer = () => {
     var newRound = this.state.round + 1;
 
-    this.setState({ 
+    this.setState({
       wasUserCorrect: false,
       answered: true,
       round: newRound
@@ -92,7 +135,7 @@ class App extends React.Component {
         // note: we are adding a key prop here to allow react to uniquely identify each
         // element in this array. see: https://reactjs.org/docs/lists-and-keys.html
         buttons.push(<div className="p-6">
-          <Button id={champ} key={champ} buttonValue={champ} onClick={this.onAnswerClick} className={`${this.state.onClick == {champ} ? "button-correct answer" : "answer"}`} />
+          <Button id={champ} key={champ} buttonValue={champ} onClick={this.onAnswerClick} className={`${this.state.onClick === champ ? "button-correct answer" : "answer"}`} />
         </div>);
     }
 
@@ -103,7 +146,7 @@ class App extends React.Component {
     var correctChamp = this.getRandomChamp();
     console.log('running next round. Champ is ' + correctChamp[0]);
 
-    this.setState({ 
+    this.setState({
       correctAnswer: correctChamp,
       answered: false,
       wasUserCorrect: false,
@@ -133,41 +176,6 @@ class App extends React.Component {
     }
 
     if (this.state.round >= 10) {
-      var myCanvas = document.createElement('canvas');
-      myCanvas.className = 'confetti-bg';
-      document.body.appendChild(myCanvas);
-
-      var myConfetti = Confetti.create(myCanvas, {
-        resize: true,
-        useWorker: true
-      });
-
-      // do this for 1.5 seconds
-      var duration = 1.5 * 1000;
-      var end = Date.now() + duration;
-
-      (function frame() {
-        // launch a few confetti from the left edge
-        myConfetti({
-          particleCount: 7,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 }
-        });
-        // and launch a few from the right edge
-        myConfetti({
-          particleCount: 7,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 }
-        });
-
-        // keep going until we are out of time
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      }());
-
       const scoreText = [
         "I guess you don't play League of Legends, huh?",
         "Did you guess it?",

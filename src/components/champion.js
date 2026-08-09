@@ -10,7 +10,6 @@ class Champion extends React.Component {
         this.state = {
             champData: [],
             errorMessage: '',
-            champName: props.champName,
             champId: '',
             loading: true
         };
