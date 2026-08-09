@@ -173,6 +173,59 @@
 
 .champion-splash {
     padding-top: 25px;
+    width: 100%;
+    height: 100%;
+}
+
+.flip-card {
+    /* Matches the real aspect ratio of Data Dragon's loading splash art
+       (308x560), so object-fit: cover on the back face doesn't crop it. */
+    width: 300px;
+    height: 545px;
+    perspective: 1000px;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.25s;
+    transform-style: preserve-3d;
+}
+
+.flip-card-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.flip-card-plain-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+}
+
+.champion-splash-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.champion-border {
+    /* champ_border.png (268x592) has no intrinsic tie to the card size -
+       scale by height and let width follow its own aspect ratio, rather
+       than rendering at native pixel size regardless of container. */
+    height: 100%;
+    width: auto;
 }
 
 .stopwatch {

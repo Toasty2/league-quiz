@@ -10,8 +10,16 @@ class Champion extends React.Component {
         this.state = {
             champData: [],
             errorMessage: '',
-            champId: '',
-            loading: true
+            loading: true,
+            // The card has exactly two physical faces. Rather than fixing
+            // "front = card back, back = splash art", each face just holds
+            // whatever content was placed there most recently, and every
+            // transition updates the currently-hidden face then flips to it -
+            // a ping-pong, so the same two faces can keep cycling through
+            // card-back -> splash -> result -> next splash -> next result...
+            flipped: false,
+            frontContent: { type: 'cardback' },
+            backContent: null
         };
     }
 
@@ -46,7 +54,7 @@ class Champion extends React.Component {
         this.setState({ loading: true });
         const response = await axios.get(champDataSource, {});
 
-        console.log(response);
+        //console.log(response);
 
         this.setState({ 
             champData: response,
@@ -54,16 +62,40 @@ class Champion extends React.Component {
         });
     }
 
+    // Puts new content on whichever face isn't currently showing, then flips
+    // to it a moment later - the small delay guarantees a paint happens with
+    // the old face still visible, so the CSS transition has something to
+    // animate from. The target state is computed once, up front, from
+    // this.state.flipped at call time - not via a toggle relative to
+    // whatever state exists whenever the delayed callback happens to fire -
+    // so that if this is ever called twice in quick succession (e.g. mount
+    // lifecycles firing more than once), both calls converge on the same
+    // result instead of toggling each other back and forth.
+    flipToShow = (content) => {
+        var hiddenFaceKey = this.state.flipped ? 'frontContent' : 'backContent';
+        var targetFlipped = !this.state.flipped;
+
+        this.setState({ [hiddenFaceKey]: content });
+
+        setTimeout(() => {
+            this.setState({ flipped: targetFlipped });
+        }, 30);
+    }
+
     loadChamp = (champName) => {
-        console.log('champion from champion.js is ' + champName);
+        //console.log('champion from champion.js is ' + champName);
 
         Promise.all([getLatestVersion(), getChampionIdMap()]).then(([version, idsByName]) => {
             var champId = idsByName[champName] || champName;
             const champDataSource = `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${champId}.json`;
 
-            this.setState({ champId: champId });
             this.fetchChamp(champName, champDataSource);
+            this.flipToShow({ type: 'splash', champId: champId });
         });
+    }
+
+    showResult = (wasUserCorrect) => {
+        this.flipToShow({ type: 'result', correct: wasUserCorrect });
     }
 
     componentDidMount = () => {
@@ -83,37 +115,53 @@ class Champion extends React.Component {
 
         if (prevProps.champName !== this.props.champName) {
             this.loadChamp(this.props.champName);
+        } else if (!prevProps.answered && this.props.answered) {
+            this.showResult(this.props.wasUserCorrect);
         }
     }
 
-    render() {
-        if (this.state.loading) {
-            return (
-                <div>Loading champ data...</div>
-            );
-        } else {
-            var champId = this.state.champId;
-            var splashImage = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champId}_0.jpg`;
-            console.log('champName is ' + this.props.champName + ' and splashImage is ' + splashImage);
+    renderFace = (content) => {
+        if (!content) {
+            return null;
+        }
 
-            const styles = {
-                'backgroundImage': `url(${splashImage})`,
-                'backgroundPosition': 'center',
-                'backgroundSize': 'cover',
-                'backgroundRepeat': 'no-repeat',
-                'width': '50vw',
-                'height': '100vh'
-            };
-            
+        if (content.type === 'cardback') {
+            return <img src={require('../assets/img/card.png')} alt="Face-down champion card" className="flip-card-plain-image" />;
+        }
 
+        if (content.type === 'result') {
+            var resultImage = content.correct ? require('../assets/img/card_correct.png') : require('../assets/img/card_incorrect.png');
+            var resultAlt = content.correct ? 'Correct answer' : 'Incorrect answer';
+            return <img src={resultImage} alt={resultAlt} className="flip-card-plain-image" />;
+        }
+
+        if (content.type === 'splash') {
+            var splashImage = `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${content.champId}_0.jpg`;
             return (
-                <div className="ui relaxed divided list test champion-splash relative" >
-                    <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5" />
-                    <img src={splashImage} alt="Champion splash art" />
+                <div className="ui relaxed divided list test champion-splash relative">
+                    <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
+                    <img src={splashImage} alt="Champion splash art" className="champion-splash-art" />
                     <h2 className="champion-reveal"></h2>
                 </div>
             );
         }
+
+        return null;
+    }
+
+    render() {
+        return (
+            <div className="flip-card">
+                <div className={`flip-card-inner ${this.state.flipped ? 'flipped' : ''}`}>
+                    <div className="flip-card-front">
+                        {this.renderFace(this.state.frontContent)}
+                    </div>
+                    <div className="flip-card-back">
+                        {this.renderFace(this.state.backContent)}
+                    </div>
+                </div>
+            </div>
+        );
     }
 }
 

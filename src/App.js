@@ -158,10 +158,7 @@ class App extends React.Component {
   }
 
   // Picks a GIF from an already-fetched pool. Called once per round, at the
-  // same time the round's outcome is decided (handleCorrectAnswer /
-  // handleIncorrectAnswer) - not from render, for the same reason the answer
-  // options aren't picked from render: render can run more often than "the
-  // round's outcome changed", and this is a one-time-per-round random pick.
+  // same time the round's outcome is decided (handleCorrectAnswer / handleIncorrectAnswer)
   pickRandomGif = (pool) => {
     var randomIndex = Math.floor(Math.random() * pool.length);
     return pool[randomIndex];
@@ -329,7 +326,7 @@ class App extends React.Component {
             <main className="app-container">
               <div className="grid grid-cols-1 md:grid-cols-2 items-center">
                 <div className="py-6 mx-auto">
-                  <Champion champName={this.state.correctAnswer} />
+                  <Champion champName={this.state.correctAnswer} answered={this.state.answered} wasUserCorrect={this.state.wasUserCorrect} />
                 </div>
                 <div className="py-6 items-center">
                   <div className="grid grid-cols-2">
