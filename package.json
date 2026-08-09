@@ -3,22 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "axios": "^0.27.2",
-    "bootstrap": "^5.2.0",
-    "canvas-confetti": "^1.5.1",
-    "express": "^4.18.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.3",
+    "axios": "^1.19.0",
+    "bootstrap": "^5.3.8",
+    "canvas-confetti": "^1.9.4",
+    "express": "^5.2.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "react-scripts": "^5.0.1",
-    "react-timer-hook": "^3.0.5",
+    "react-timer-hook": "^4.0.6",
     "riot-lol-api": "^4.3.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^6.1.0"
   },
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",
@@ -45,6 +45,6 @@
     ]
   },
   "devDependencies": {
-    "tailwindcss": "^3.2.6"
+    "tailwindcss": "^3.4.19"
   }
 }
