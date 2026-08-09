@@ -340,11 +340,11 @@ class App extends React.Component {
                     {this.state.answered ? "" : this.renderAnswerButtons()}
                   </div>
                   <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
-                    <img src={this.state.resultGifUrl} />
+                    <img src={this.state.resultGifUrl} alt="Correct reaction GIF" />
                     <Button id="nextRound" buttonValue={this.state.round >= 10 ? "See results" : "Next round"} onClick = {this.runNextRound} />
                   </div>
                   <div className={`wrong-answer ${!this.state.wasUserCorrect && this.state.answered ? "incorrect" : ""}`}>
-                    <img src={this.state.resultGifUrl} />
+                    <img src={this.state.resultGifUrl} alt="Incorrect reaction GIF" />
                     <Button id="nextRound" buttonValue={this.state.round >= 10 ? "See results" : "Next round"} onClick = {this.runNextRound} />
                   </div>
                   
