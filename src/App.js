@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Confetti from 'canvas-confetti';
 import logo from './logo.svg';
 //import Riot from './apis/riot';
@@ -6,6 +6,7 @@ import Champion from './components/champion';
 import Button from './components/button';
 import HeaderBar from './components/headerBar';
 import Stopwatch from './components/stopwatch';
+import { getChampionNames } from './apis/ddragon';
 
 import './App.css';
 import './league.css';
@@ -24,172 +25,18 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    var correctChamp = this.getRandomChamp();
-    this.state = { correctAnswer: correctChamp, score: 0, round: 0 };
+    this.state = { correctAnswer: '', score: 0, round: 0, loading: true };
   }
 
-  listOfChamps = [
-    'Aatrox', 
-    'Aatrox', 
-    'Ahri', 
-    'Akshan', 
-    'Amumu', 
-    'Annie', 
-    'Anivia', 
-    'Akali', 
-    'Alistar', 
-    'Aphelios', 
-    'Ashe', 
-    /*'Aurelion Sol', */
-    'Azir', 
-    'Bard', 
-    /*'Bel\'Veth',*/
-    'Blitzcrank',
-    'Brand',
-    'Braum',
-    'Caitlyn',
-    'Camille',
-    'Cassiopeia',
-    /*'Cho\'Gath',*/
-    'Corki',
-    'Darius',
-    'Diana',
-    /*'Dr. Mundo',*/
-    'Draven',
-    'Ekko',
-    'Elise',
-    'Evelynn',
-    'Ezreal',
-    'Fiddlesticks',
-    'Fiora',
-    'Fizz',
-    'Galio',
-    'Gangplank',
-    'Garen',
-    'Gnar',
-    'Gragas',
-    'Graves',
-    'Gwen',
-    'Hecarim',
-    'Heimerdinger',
-    'Illaoi',
-    'Irelia',
-    'Ivern',
-    'Janna',
-    'Jarvan IV',
-    'Jax',
-    'Jayce',
-    'Jhin',
-    'Jinx',
-    /*'Kai\'Sa',*/
-    'Kalista',
-    'Karma',
-    'Karthus',
-    'Kassadin',
-    'Kayn',
-    'Kennen',
-    /*'Kha\'Zix'*/
-    'Kindred',
-    'Kled',
-    /*'Kog\'Maw',*/
-    /*'LeBlanc',*/
-    /*'Lee Sin',*/
-    'Leona',
-    'Lillia',
-    'Lissandra',
-    'Lucian',
-    'Lulu',
-    'Lux',
-    'Malphite',
-    'Malzahar',
-    'Maokai',
-    /*'Master Yi',*/
-    /*'Miss Fortune',*/
-    'Mordekaiser',
-    'Morgana',
-    'Nami',
-    'Nasus',
-    'Nautilus',
-    'Neeko',
-    'Nidalee',
-    'Nilah',
-    'Nocturne',
-    /*'Nunu & Willump',*/
-    'Olaf',
-    'Orianna',
-    'Ornn',
-    'Pantheon',
-    'Poppy',
-    'Pyke',
-    'Qiyana',
-    'Quinn',
-    'Rakan',
-    'Rammus',
-    /*'Rek\'Sai',*/
-    'Rell',
-    /*'Renata Glasc',*/
-    'Renekton',
-    'Rengar',
-    'Riven',
-    'Rumble',
-    'Ryze',
-    'Samira',
-    'Sejuani',
-    'Senna',
-    'Seraphine',
-    'Sett',
-    'Shaco',
-    'Shen',
-    'Shyvana',
-    'Singed',
-    'Sion',
-    'Sivir',
-    'Skarner',
-    'Sona',
-    'Soraka',
-    'Swain',
-    'Sylas',
-    'Syndra',
-    /*'Tahm Kench',*/
-    'Taliyah',
-    'Talon',
-    'Taric',
-    'Teemo',
-    'Thresh',
-    'Tristana',
-    'Trundle',
-    'Tryndamere',
-    /*'Twisted Fate',*/
-    'Twitch',
-    'Udyr',
-    'Urgot',
-    'Varus',
-    'Vayne',
-    'Veigar',
-    /*'Vel\'Koz'*/
-    'Vex',
-    'Vi',
-    'Viego',
-    'Viktor',
-    'Vladimir',
-    'Volibear',
-    'Warwick',
-    /*'Wukong',*/
-    'Xayah',
-    'Xerath',
-    /*'Xin Zhao',*/
-    'Yasuo',
-    'Yone',
-    'Yorick',
-    'Yuumi',
-    'Zac',
-    'Zed',
-    'Zeri',
-    'Ziggs',
-    'Zilean',
-    'Zoe',
-    'Zyra'
-  ];
+  componentDidMount = () => {
+    getChampionNames().then(champNames => {
+      this.champNames = champNames;
+      var correctChamp = this.getRandomChamp();
+
+      this.setState({ correctAnswer: correctChamp, loading: false });
+    });
+  }
+
 
   onAnswerClick = (onClick) => {
     (onClick == this.state.correctAnswer) ? this.handleCorrectAnswer(onClick) : this.handleIncorrectAnswer();
@@ -222,9 +69,9 @@ class App extends React.Component {
   getRandomChamp = (amount = 1) => {
     var champList = [];
     for (var i = 1; i <= amount; i++) {
-      var random = Math.floor(Math.random() * this.listOfChamps.length);
+      var random = Math.floor(Math.random() * this.champNames.length);
       //console.log('random is ' + random);
-      champList.push(this.listOfChamps[random]);
+      champList.push(this.champNames[random]);
     }
 
     return champList;
@@ -278,6 +125,12 @@ class App extends React.Component {
 
   render() {
     //console.log('champ is ' + this.state.correctAnswer);
+
+    if (this.state.loading) {
+      return (
+        <div className="App">Loading champions...</div>
+      );
+    }
 
     if (this.state.round >= 10) {
       var myCanvas = document.createElement('canvas');
