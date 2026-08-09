@@ -25,7 +25,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { correctAnswer: '', score: 0, round: 0, loading: true };
+    this.state = { correctAnswer: '', answerOptions: [], score: 0, round: 0, loading: true };
   }
 
   componentDidMount = () => {
@@ -33,7 +33,11 @@ class App extends React.Component {
       this.champNames = champNames;
       var correctChamp = this.getRandomChamp();
 
-      this.setState({ correctAnswer: correctChamp, loading: false });
+      this.setState({
+        correctAnswer: correctChamp,
+        answerOptions: this.pickAnswerOptions(correctChamp),
+        loading: false
+      });
     });
   }
 
@@ -120,18 +124,27 @@ class App extends React.Component {
     return champList;
   }
 
-  getRandomAnswers = (amount = 3) => {
+  // Picks the set of champion names shown as answer options for a round.
+  // Called once when a round starts (componentDidMount / runNextRound), not
+  // from render - render runs far more often than "a new round started", and
+  // this involves randomness that should only happen once per round.
+  pickAnswerOptions = (correctAnswer, amount = 3) => {
     var answers = this.getRandomChamp(amount);
     // Slot in the correct answer
-    answers.push(this.state.correctAnswer.toString());
+    answers.push(correctAnswer.toString());
     // Randomise the array
     this.shuffleArray(answers);
 
-    var buttons = [];
     console.log(answers);
 
-    for (let i = 0; i < answers.length; i++) {
-      var champ = answers[i];
+    return answers;
+  }
+
+  renderAnswerButtons = () => {
+    var buttons = [];
+
+    for (let i = 0; i < this.state.answerOptions.length; i++) {
+      var champ = this.state.answerOptions[i];
         // note: we are adding a key prop here to allow react to uniquely identify each
         // element in this array. see: https://reactjs.org/docs/lists-and-keys.html
         buttons.push(<div className="p-6">
@@ -148,6 +161,7 @@ class App extends React.Component {
 
     this.setState({
       correctAnswer: correctChamp,
+      answerOptions: this.pickAnswerOptions(correctChamp),
       answered: false,
       wasUserCorrect: false,
       champName: correctChamp
@@ -229,7 +243,7 @@ class App extends React.Component {
 
                   
                   <div className="grid grid-cols-1 md:grid-cols-2">
-                    {this.state.answered ? "" : this.getRandomAnswers(3)}
+                    {this.state.answered ? "" : this.renderAnswerButtons()}
                   </div>
                   <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
                     <img src="https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g" />
