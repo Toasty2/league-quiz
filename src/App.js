@@ -7,10 +7,14 @@ import Button from './components/button';
 import HeaderBar from './components/headerBar';
 import Stopwatch from './components/stopwatch';
 import { getChampionNames } from './apis/ddragon';
+import { fetchGifPool } from './apis/giphy';
 
 import './App.css';
 import './league.css';
 //import 'bootstrap/dist/css/bootstrap.min.css'
+
+const DEFAULT_CORRECT_GIF = 'https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g';
+const DEFAULT_INCORRECT_GIF = 'https://c.tenor.com/zIm8X37R8cIAAAAC/b99-chelsea-peretti.gif';
 
 class App extends React.Component {
   state = { 
@@ -25,7 +29,16 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { correctAnswer: '', answerOptions: [], score: 0, round: 0, loading: true };
+    this.state = {
+      correctAnswer: '',
+      answerOptions: [],
+      score: 0,
+      round: 0,
+      loading: true,
+      correctGifPool: [DEFAULT_CORRECT_GIF],
+      incorrectGifPool: [DEFAULT_INCORRECT_GIF],
+      resultGifUrl: DEFAULT_CORRECT_GIF
+    };
   }
 
   componentDidMount = () => {
@@ -38,6 +51,26 @@ class App extends React.Component {
         answerOptions: this.pickAnswerOptions(correctChamp),
         loading: false
       });
+    });
+
+    // Secondary/non-blocking: fetch extra correct/incorrect GIFs once, in the
+    // background, and fold them into the pool whenever they arrive. Doesn't
+    // gate `loading` - the quiz works fine with just the two default GIFs
+    // until (and unless) this resolves.
+    fetchGifPool('correct').then(gifs => {
+      if (gifs.length > 0) {
+        this.setState(prevState => ({
+          correctGifPool: [...prevState.correctGifPool, ...gifs]
+        }));
+      }
+    });
+
+    fetchGifPool('incorrect').then(gifs => {
+      if (gifs.length > 0) {
+        this.setState(prevState => ({
+          incorrectGifPool: [...prevState.incorrectGifPool, ...gifs]
+        }));
+      }
     });
   }
 
@@ -90,6 +123,16 @@ class App extends React.Component {
     console.log('Correct answer is ' + this.state.correctAnswer + ' User selected ' + onClick + ' score is ' + this.state.score);
   }
 
+  // Picks a GIF from an already-fetched pool. Called once per round, at the
+  // same time the round's outcome is decided (handleCorrectAnswer /
+  // handleIncorrectAnswer) - not from render, for the same reason the answer
+  // options aren't picked from render: render can run more often than "the
+  // round's outcome changed", and this is a one-time-per-round random pick.
+  pickRandomGif = (pool) => {
+    var randomIndex = Math.floor(Math.random() * pool.length);
+    return pool[randomIndex];
+  }
+
   handleCorrectAnswer = (onClick) => {
     var newScore = this.state.score + 1;
     var newRound = this.state.round + 1;
@@ -99,7 +142,8 @@ class App extends React.Component {
       answered: true,
       onClick: onClick,
       score: newScore,
-      round: newRound
+      round: newRound,
+      resultGifUrl: this.pickRandomGif(this.state.correctGifPool)
     });
   }
 
@@ -109,7 +153,8 @@ class App extends React.Component {
     this.setState({
       wasUserCorrect: false,
       answered: true,
-      round: newRound
+      round: newRound,
+      resultGifUrl: this.pickRandomGif(this.state.incorrectGifPool)
     });
   }
 
@@ -246,11 +291,11 @@ class App extends React.Component {
                     {this.state.answered ? "" : this.renderAnswerButtons()}
                   </div>
                   <div className={`right-answer ${this.state.wasUserCorrect && this.state.answered ? "correct" : ""}`}>
-                    <img src="https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g" />
+                    <img src={this.state.resultGifUrl} />
                     <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
                   </div>
                   <div className={`wrong-answer ${!this.state.wasUserCorrect && this.state.answered ? "incorrect" : ""}`}>
-                    <img src="https://c.tenor.com/zIm8X37R8cIAAAAC/b99-chelsea-peretti.gif" />
+                    <img src={this.state.resultGifUrl} />
                     <Button id="nextRound" buttonValue="Next round" onClick = {this.runNextRound} />
                   </div>
                   
