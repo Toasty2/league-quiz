@@ -14,6 +14,7 @@ function renderAnswerButtons(answerOptions, selectedAnswer, onAnswerClick) {
 function QuizScreen({
   sessionId,
   round,
+  difficulty,
   answerOptions,
   answered,
   wasUserCorrect,
@@ -30,7 +31,7 @@ function QuizScreen({
         <main className="app-container">
           <div className="grid grid-cols-1 md:grid-cols-2 items-center">
             <div className="py-6 mx-auto">
-              <Champion sessionId={sessionId} round={round} answerOptions={answerOptions} answered={answered} wasUserCorrect={wasUserCorrect} />
+              <Champion sessionId={sessionId} round={round} difficulty={difficulty} answerOptions={answerOptions} answered={answered} wasUserCorrect={wasUserCorrect} />
             </div>
             <div className="py-6 items-center">
               <div className="grid grid-cols-2">

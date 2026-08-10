@@ -15,7 +15,7 @@ const scoreText = [
   "You a winner!"
 ];
 
-function ResultsScreen({ score, finalScore, onReset }) {
+function ResultsScreen({ score, finalScore, difficulty, onReset }) {
   return (
     <div id="app" className="App">
       <div className="container-bg">
@@ -26,7 +26,7 @@ function ResultsScreen({ score, finalScore, onReset }) {
                 <h1 className="score-title">{scoreText[parseInt(score)]}</h1>
                 <h1 className="score-title">Final Score: {finalScore}</h1>
                 <button onClick={onReset}>Reset</button>
-                <Link to="/scoreboard" className="score-title">View Scoreboard</Link>
+                <Link to={`/scoreboard?difficulty=${difficulty}`} className="score-title">View Scoreboard</Link>
               </div>
             </div>
         </div>

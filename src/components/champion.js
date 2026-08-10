@@ -1,5 +1,6 @@
 import React from 'react';
 import { getSplashProxyUrl } from '../apis/supabase';
+import { pickRandomTechnique, getRevealDuration, renderObfuscated } from './obfuscation';
 
 class Champion extends React.Component {
 
@@ -15,7 +16,8 @@ class Champion extends React.Component {
             // card-back -> splash -> result -> next splash -> next result...
             flipped: false,
             frontContent: { type: 'cardback' },
-            backContent: null
+            backContent: null,
+            revealProgress: 1
         };
     }
 
@@ -67,15 +69,46 @@ class Champion extends React.Component {
     }
 
     loadChamp = (round) => {
-        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, round) });
+        this.stopReveal();
+
+        var techniqueId = this.props.difficulty === 'hard' ? pickRandomTechnique() : null;
+        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, round), techniqueId });
+
+        if (techniqueId) {
+            this.startReveal(techniqueId);
+        }
+    }
+
+    startReveal = (techniqueId) => {
+        var startTime = Date.now();
+        var durationMs = getRevealDuration(techniqueId);
+        this.setState({ revealProgress: 0 });
+
+        this.revealInterval = setInterval(() => {
+            var progress = Math.min(1, (Date.now() - startTime) / durationMs);
+            this.setState({ revealProgress: progress });
+
+            if (progress >= 1) {
+                this.stopReveal();
+            }
+        }, 100);
+    }
+
+    stopReveal = () => {
+        clearInterval(this.revealInterval);
     }
 
     showResult = (wasUserCorrect) => {
+        this.stopReveal();
         this.flipToShow({ type: 'result', correct: wasUserCorrect });
     }
 
     componentDidMount = () => {
         this.loadChamp(this.props.round);
+    }
+
+    componentWillUnmount = () => {
+        this.stopReveal();
     }
 
     componentDidUpdate = (prevProps, prevState) => {
@@ -115,7 +148,14 @@ class Champion extends React.Component {
             return (
                 <div className="ui relaxed divided list test champion-splash relative">
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
-                    <img src={content.proxyUrl} alt="Champion splash art" className="champion-splash-art" />
+                    {content.techniqueId
+                        ? renderObfuscated(content.techniqueId, {
+                            proxyUrl: content.proxyUrl,
+                            alt: 'Champion splash art',
+                            className: 'champion-splash-art',
+                            progress: this.state.revealProgress
+                        })
+                        : <img src={content.proxyUrl} alt="Champion splash art" className="champion-splash-art" />}
                 </div>
             );
         }

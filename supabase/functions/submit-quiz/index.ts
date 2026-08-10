@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
 
     const { data: session, error } = await supabase
       .from('quiz_sessions')
-      .select('answers, started_at, finished_at')
+      .select('answers, started_at, finished_at, difficulty')
       .eq('id', sessionId)
       .single();
 
@@ -51,6 +51,7 @@ Deno.serve(async (req) => {
       correct_count: correctCount,
       elapsed_ms: elapsedMs,
       final_score: finalScore,
+      difficulty: session.difficulty,
     });
 
     if (scoreError) throw scoreError;

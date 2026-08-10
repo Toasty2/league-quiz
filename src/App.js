@@ -1,13 +1,22 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useSearchParams } from 'react-router-dom';
 import QuizPage from './pages/QuizPage';
 import ScoreboardPage from './pages/ScoreboardPage';
+
+// ScoreboardPage stays a plain class component like the other pages; this
+// just adapts the ?difficulty= query param (only readable via a hook) into
+// a prop it can receive normally.
+function ScoreboardRoute() {
+  const [searchParams] = useSearchParams();
+  const difficulty = searchParams.get('difficulty') === 'hard' ? 'hard' : 'easy';
+  return <ScoreboardPage difficulty={difficulty} />;
+}
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<QuizPage />} />
-      <Route path="/scoreboard" element={<ScoreboardPage />} />
+      <Route path="/scoreboard" element={<ScoreboardRoute />} />
     </Routes>
   );
 }

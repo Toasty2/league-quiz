@@ -9,7 +9,18 @@ class ScoreboardPage extends React.Component {
   };
 
   componentDidMount = () => {
-    getLeaderboard().then(scores => {
+    this.fetchScores();
+  }
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.difficulty !== this.props.difficulty) {
+      this.setState({ loading: true });
+      this.fetchScores();
+    }
+  }
+
+  fetchScores = () => {
+    getLeaderboard(this.props.difficulty).then(scores => {
       this.setState({ scores, loading: false });
     });
   }
@@ -26,6 +37,21 @@ class ScoreboardPage extends React.Component {
         <div className="container-bg">
           <main className="app-container">
             <h1 className="question-title">Scoreboard</h1>
+
+            <div className="difficulty-tabs">
+              <Link
+                to="/scoreboard?difficulty=easy"
+                className={`score-title ${this.props.difficulty === 'easy' ? 'difficulty-tab-active' : ''}`}
+              >
+                Baby Mode
+              </Link>
+              <Link
+                to="/scoreboard?difficulty=hard"
+                className={`score-title ${this.props.difficulty === 'hard' ? 'difficulty-tab-active' : ''}`}
+              >
+                Hard Mode
+              </Link>
+            </div>
 
             <table>
               <thead>

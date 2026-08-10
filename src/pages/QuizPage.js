@@ -42,6 +42,7 @@ class QuizPage extends React.Component {
       loading: true,
       started: false,
       preparingQuiz: false,
+      difficulty: null,
       readyToSubmit: false,
       playerName: '',
       submitting: false,
@@ -58,18 +59,18 @@ class QuizPage extends React.Component {
     this.stopTimer();
   }
 
-  startQuiz = () => {
+  startQuiz = (difficulty) => {
     if (this.state.preparingQuiz || this.state.started) {
       return;
     }
 
-    this.setState({ preparingQuiz: true });
+    this.setState({ preparingQuiz: true, difficulty });
 
     this.sessionPromise.then(({ sessionId, questions }) => {
       var preloads = questions.map((question, round) => preloadImage(getSplashProxyUrl(sessionId, round)));
 
       return Promise.all(preloads)
-        .then(() => beginSession(sessionId))
+        .then(() => beginSession(sessionId, difficulty))
         .then(() => {
           this.setState({
             sessionId: sessionId,
@@ -260,7 +261,13 @@ class QuizPage extends React.Component {
     }
 
     if (!this.state.started) {
-      return <StartScreen preparingQuiz={this.state.preparingQuiz} onStart={this.startQuiz} />;
+      return (
+        <StartScreen
+          preparingQuiz={this.state.preparingQuiz}
+          pendingDifficulty={this.state.difficulty}
+          onStart={this.startQuiz}
+        />
+      );
     }
 
     if (this.state.readyToSubmit && !this.state.finished) {
@@ -279,6 +286,7 @@ class QuizPage extends React.Component {
         <ResultsScreen
           score={this.state.score}
           finalScore={this.state.finalScore}
+          difficulty={this.state.difficulty}
           onReset={this.resetQuiz}
         />
       );
@@ -288,6 +296,7 @@ class QuizPage extends React.Component {
       <QuizScreen
         sessionId={this.state.sessionId}
         round={this.state.round}
+        difficulty={this.state.difficulty}
         answerOptions={this.state.answerOptions}
         answered={this.state.answered}
         wasUserCorrect={this.state.wasUserCorrect}

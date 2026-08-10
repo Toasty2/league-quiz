@@ -163,6 +163,16 @@
     text-transform: uppercase;
 }
 
+.difficulty-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+}
+
+.difficulty-tab-active {
+    text-decoration: underline;
+}
+
 .confetti-bg {
     position: fixed;
     top: 0;
