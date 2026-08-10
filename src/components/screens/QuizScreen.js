@@ -32,11 +32,15 @@ function QuizScreen({
               <Champion sessionId={sessionId} round={round} difficulty={difficulty} answerOptions={answerOptions} answered={answered} wasUserCorrect={wasUserCorrect} />
             </div>
             <div className="py-6 items-center">
-              <div className="grid grid-cols-2">
+              {/* max-w matches the answer grid's rendered width so the timer aligns with the button, not the page edge */}
+              <div className="grid grid-cols-3 max-w-[672px]">
                 <div className="score-title text-left uppercase">
                   Score: {parseInt(score)} / 10
                 </div>
                 <div className="score-title uppercase">
+                  Round: {parseInt(round)} / 10
+                </div>
+                <div className="score-title text-right uppercase">
                   {formatElapsedTime(elapsedMs)}
                 </div>
               </div>
@@ -52,12 +56,6 @@ function QuizScreen({
               <div className={`wrong-answer ${!wasUserCorrect && answered ? "incorrect" : ""}`}>
                 <img src={resultGifUrl} alt="Incorrect reaction GIF" />
                 <Button id="nextRound" buttonValue={round >= 10 ? "See results" : "Next round"} onClick={onNextRound} />
-              </div>
-
-              <div className="flex-row">
-                <div className="score-title text-left uppercase">
-                  Round: {parseInt(round)} / 10
-                </div>
               </div>
             </div>
           </div>
