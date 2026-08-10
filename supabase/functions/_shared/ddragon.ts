@@ -15,7 +15,9 @@ export async function getChampionList(version) {
 export async function getChampionSkins(version, champId) {
   const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${champId}.json`);
   const data = await res.json();
-  return data.data[champId].skins.map((skin) => skin.num);
+  // Chromas share their parent skin's splash art rather than having their
+  // own, and are the only entries with a parentSkin field.
+  return data.data[champId].skins.filter((skin) => !('parentSkin' in skin)).map((skin) => skin.num);
 }
 
 export function getSplashArtUrl(champId, skinNum = 0) {
