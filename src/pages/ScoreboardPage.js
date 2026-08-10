@@ -8,21 +8,37 @@ class ScoreboardPage extends React.Component {
     loading: true
   };
 
+  highlightedRowRef = null;
+
   componentDidMount = () => {
     this.fetchScores();
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = (prevProps, prevState) => {
     if (prevProps.difficulty !== this.props.difficulty) {
       this.setState({ loading: true });
       this.fetchScores();
     }
+
+    if (prevState.loading && !this.state.loading) {
+      this.scrollToHighlightedRow();
+    }
   }
 
   fetchScores = () => {
-    getLeaderboard(this.props.difficulty).then(scores => {
+    // Fetch enough rows to guarantee the just-submitted score is present,
+    // rather than the normal top-20 browsing limit.
+    var limit = this.props.highlightSessionId ? 100 : 20;
+
+    getLeaderboard(this.props.difficulty, limit).then(scores => {
       this.setState({ scores, loading: false });
     });
+  }
+
+  scrollToHighlightedRow = () => {
+    if (this.highlightedRowRef) {
+      this.highlightedRowRef.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   render() {
@@ -69,14 +85,21 @@ class ScoreboardPage extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.scores.map((score, i) => (
-                  <tr key={i}>
-                    <td className="score-title">{score.player_name}</td>
-                    <td className="score-title">{score.final_score}</td>
-                    <td className="score-title">{score.correct_count} / 10</td>
-                    <td className="score-title">{(score.elapsed_ms / 1000).toFixed(3)}s</td>
-                  </tr>
-                ))}
+                {this.state.scores.map((score, i) => {
+                  var isMine = score.session_id === this.props.highlightSessionId;
+                  return (
+                    <tr
+                      key={i}
+                      ref={isMine ? (el => { this.highlightedRowRef = el; }) : null}
+                      className={isMine ? 'score-row-highlight' : ''}
+                    >
+                      <td className="score-title">{score.player_name}</td>
+                      <td className="score-title">{score.final_score}</td>
+                      <td className="score-title">{score.correct_count} / 10</td>
+                      <td className="score-title">{(score.elapsed_ms / 1000).toFixed(3)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
 

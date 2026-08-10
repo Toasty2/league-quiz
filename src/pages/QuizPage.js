@@ -10,7 +10,6 @@ import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz,
 import LoadingScreen from '../components/screens/LoadingScreen';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
-import ResultsScreen from '../components/screens/ResultsScreen';
 import QuizScreen from '../components/screens/QuizScreen';
 
 const DEFAULT_CORRECT_GIF = 'https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g';
@@ -46,8 +45,6 @@ class QuizPage extends React.Component {
       readyToSubmit: false,
       playerName: '',
       submitting: false,
-      finished: false,
-      finalScore: null,
       elapsedMs: 0,
       correctGifPool: [DEFAULT_CORRECT_GIF],
       incorrectGifPool: [DEFAULT_INCORRECT_GIF],
@@ -122,7 +119,7 @@ class QuizPage extends React.Component {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
-    if (this.state.finished && !prevState.finished) {
+    if (this.state.readyToSubmit && !prevState.readyToSubmit) {
       this.celebrateWin(this.state.score);
     }
   }
@@ -252,17 +249,11 @@ class QuizPage extends React.Component {
 
     this.setState({ submitting: true });
 
-    submitQuiz(this.state.sessionId, this.state.playerName.trim()).then(result => {
-      this.setState({
-        finished: true,
-        submitting: false,
-        finalScore: result.finalScore
+    submitQuiz(this.state.sessionId, this.state.playerName.trim()).then(() => {
+      this.props.navigate(`/scoreboard?difficulty=${this.state.difficulty}`, {
+        state: { sessionId: this.state.sessionId }
       });
     });
-  }
-
-  resetQuiz = () => {
-    window.location.reload();
   }
 
   render() {
@@ -280,24 +271,14 @@ class QuizPage extends React.Component {
       );
     }
 
-    if (this.state.readyToSubmit && !this.state.finished) {
+    if (this.state.readyToSubmit) {
       return (
         <SubmitScoreScreen
+          score={this.state.score}
           playerName={this.state.playerName}
           submitting={this.state.submitting}
           onNameChange={this.updatePlayerName}
           onSubmit={this.submitScore}
-        />
-      );
-    }
-
-    if (this.state.finished) {
-      return (
-        <ResultsScreen
-          score={this.state.score}
-          finalScore={this.state.finalScore}
-          difficulty={this.state.difficulty}
-          onReset={this.resetQuiz}
         />
       );
     }

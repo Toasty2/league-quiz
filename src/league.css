@@ -171,6 +171,11 @@
     text-decoration: underline;
 }
 
+.score-row-highlight {
+    background-color: rgba(200, 155, 60, 0.25);
+    outline: 2px solid #C89B3C;
+}
+
 .confetti-bg {
     position: fixed;
     top: 0;

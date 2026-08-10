@@ -39,7 +39,7 @@ export function getSplashProxyUrl(sessionId, round) {
 export function getLeaderboard(difficulty, limit = 20) {
   return supabase
     .from('scores')
-    .select('player_name, correct_count, elapsed_ms, final_score, created_at')
+    .select('session_id, player_name, correct_count, elapsed_ms, final_score, created_at')
     .eq('difficulty', difficulty)
     .order('final_score', { ascending: false })
     .limit(limit)
