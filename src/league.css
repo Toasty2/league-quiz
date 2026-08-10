@@ -85,6 +85,10 @@
     letter-spacing: 0em;
 }
 
+.button.scoreboard-link {
+    margin-top: 48px;
+}
+
 .button:hover {
     border-color:#C89B3C;
     box-shadow: -1px 1px 14px 5px #FFFFFF24;
@@ -149,6 +153,18 @@
     justify-content: center;
     gap: 24px;
     padding-top: 15vh;
+}
+
+@media (max-width: 768px) {
+    .start-screen {
+        padding-top: 5vh;
+    }
+
+    .start-screen .question-title {
+        font-size: 64px;
+        line-height: 80px;
+        padding-bottom: 20px;
+    }
 }
 
 .score-title {

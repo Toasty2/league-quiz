@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Button from '../button';
 
 function StartScreen({ preparingQuiz, pendingDifficulty, onStart }) {
@@ -26,6 +27,10 @@ function StartScreen({ preparingQuiz, pendingDifficulty, onStart }) {
               onClick={() => onStart('challenger')}
               playAudio
             />
+            <Link to="/scoreboard" className="button answer-button scoreboard-link relative text-center inline-block">
+              <img src={require('../../assets/img/button_border.png')} alt="" className="absolute -top-1.5 left-1/2 -translate-x-1/2" />
+              Scoreboard
+            </Link>
           </div>
         </main>
       </div>
