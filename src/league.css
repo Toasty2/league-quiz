@@ -186,6 +186,19 @@
     height: 100%;
 }
 
+.champion-splash-spin {
+    animation: champion-splash-spin 12s linear infinite;
+}
+
+@keyframes champion-splash-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .flip-card {
     /* Matches the real aspect ratio of Data Dragon's loading splash art
        (308x560), so object-fit: cover on the back face doesn't crop it. */

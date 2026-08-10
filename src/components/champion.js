@@ -1,11 +1,15 @@
 import React from 'react';
 import { getSplashProxyUrl } from '../apis/supabase';
-import { getTechniqueForRound, getRevealDuration } from './obfuscation';
+import { getTechniqueForRound, getRevealDuration, buildChallengerSequence } from './obfuscation';
 
 class Champion extends React.Component {
 
     constructor(props) {
         super(props);
+
+        // Challenger plays each technique twice in a shuffled order rather
+        // than a fixed cycle - generated once per game, not per round.
+        this.challengerSequence = props.difficulty === 'challenger' ? buildChallengerSequence() : null;
 
         this.state = {
             // The card has exactly two physical faces. Rather than fixing
@@ -71,7 +75,13 @@ class Champion extends React.Component {
     loadChamp = (round) => {
         this.stopReveal();
 
-        var technique = this.props.difficulty === 'hard' ? getTechniqueForRound(round) : null;
+        var technique = null;
+        if (this.props.difficulty === 'hard') {
+            technique = getTechniqueForRound(round);
+        } else if (this.props.difficulty === 'challenger') {
+            technique = this.challengerSequence[round];
+        }
+
         this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, round), technique });
 
         if (technique) {
@@ -146,8 +156,9 @@ class Champion extends React.Component {
 
         if (content.type === 'splash') {
             var Technique = content.technique;
+            var spinClass = this.props.difficulty === 'challenger' ? ' champion-splash-spin' : '';
             return (
-                <div className="ui relaxed divided list test champion-splash relative">
+                <div className={`ui relaxed divided list test champion-splash relative${spinClass}`}>
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
                     {Technique
                         ? <Technique

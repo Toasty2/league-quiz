@@ -18,6 +18,11 @@ function StartScreen({ preparingQuiz, pendingDifficulty, onStart }) {
               buttonValue={preparingQuiz && pendingDifficulty === 'hard' ? "Preparing..." : "Hard Mode"}
               onClick={() => onStart('hard')}
             />
+            <Button
+              id="startChallenger"
+              buttonValue={preparingQuiz && pendingDifficulty === 'challenger' ? "Preparing..." : "Challenger"}
+              onClick={() => onStart('challenger')}
+            />
           </div>
         </main>
       </div>

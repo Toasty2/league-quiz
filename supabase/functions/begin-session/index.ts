@@ -2,16 +2,13 @@ import { corsHeaders } from '../_shared/cors.ts';
 import { getAdminClient } from '../_shared/supabaseAdmin.ts';
 import { errorResponse } from '../_shared/errorResponse.ts';
 
-const ALLOWED_DIFFICULTIES = ['easy', 'hard'];
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { sessionId, difficulty } = await req.json();
-    const resolvedDifficulty = ALLOWED_DIFFICULTIES.includes(difficulty) ? difficulty : 'easy';
+    const { sessionId } = await req.json();
     const supabase = getAdminClient();
 
     const { data: session, error } = await supabase
@@ -25,7 +22,7 @@ Deno.serve(async (req) => {
 
     const { error: updateError } = await supabase
       .from('quiz_sessions')
-      .update({ started_at: new Date().toISOString(), difficulty: resolvedDifficulty })
+      .update({ started_at: new Date().toISOString() })
       .eq('id', sessionId);
 
     if (updateError) throw updateError;

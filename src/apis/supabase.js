@@ -16,8 +16,12 @@ export function startQuizSession() {
   return invoke('start-quiz');
 }
 
-export function beginSession(sessionId, difficulty) {
-  return invoke('begin-session', { sessionId, difficulty });
+export function setDifficulty(sessionId, difficulty) {
+  return invoke('set-difficulty', { sessionId, difficulty });
+}
+
+export function beginSession(sessionId) {
+  return invoke('begin-session', { sessionId });
 }
 
 export function checkAnswer(sessionId, round, selected) {

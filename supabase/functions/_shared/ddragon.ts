@@ -12,6 +12,12 @@ export async function getChampionList(version) {
   return Object.values(data.data).filter((c) => !c.id.includes('_'));
 }
 
-export function getSplashArtUrl(champId) {
-  return `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champId}_0.jpg`;
+export async function getChampionSkins(version, champId) {
+  const res = await fetch(`https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${champId}.json`);
+  const data = await res.json();
+  return data.data[champId].skins.map((skin) => skin.num);
+}
+
+export function getSplashArtUrl(champId, skinNum = 0) {
+  return `https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${champId}_${skinNum}.jpg`;
 }

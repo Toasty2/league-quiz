@@ -6,7 +6,7 @@ import Confetti from 'canvas-confetti';
 //import Stopwatch from '../components/stopwatch';
 import { preloadImage } from '../apis/ddragon';
 import { fetchGifPool } from '../apis/giphy';
-import { startQuizSession, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
+import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
 import LoadingScreen from '../components/screens/LoadingScreen';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
@@ -67,10 +67,12 @@ class QuizPage extends React.Component {
     this.setState({ preparingQuiz: true, difficulty });
 
     this.sessionPromise.then(({ sessionId, questions }) => {
-      var preloads = questions.map((question, round) => preloadImage(getSplashProxyUrl(sessionId, round)));
-
-      return Promise.all(preloads)
-        .then(() => beginSession(sessionId, difficulty))
+      return setDifficulty(sessionId, difficulty)
+        .then(() => {
+          var preloads = questions.map((question, round) => preloadImage(getSplashProxyUrl(sessionId, round)));
+          return Promise.all(preloads);
+        })
+        .then(() => beginSession(sessionId))
         .then(() => {
           this.setState({
             sessionId: sessionId,

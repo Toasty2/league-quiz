@@ -51,6 +51,12 @@ class ScoreboardPage extends React.Component {
               >
                 Hard Mode
               </Link>
+              <Link
+                to="/scoreboard?difficulty=challenger"
+                className={`score-title ${this.props.difficulty === 'challenger' ? 'difficulty-tab-active' : ''}`}
+              >
+                Challenger
+              </Link>
             </div>
 
             <table>

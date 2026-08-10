@@ -8,7 +8,8 @@ import ScoreboardPage from './pages/ScoreboardPage';
 // a prop it can receive normally.
 function ScoreboardRoute() {
   const [searchParams] = useSearchParams();
-  const difficulty = searchParams.get('difficulty') === 'hard' ? 'hard' : 'easy';
+  const requested = searchParams.get('difficulty');
+  const difficulty = ['easy', 'hard', 'challenger'].includes(requested) ? requested : 'easy';
   return <ScoreboardPage difficulty={difficulty} />;
 }
 
