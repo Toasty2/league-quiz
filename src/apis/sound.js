@@ -1,10 +1,10 @@
 const MUTE_STORAGE_KEY = 'league-quiz-muted';
 
 const SFX_PATHS = {
-  buttonPress: '/assets/audio/button-press.mp3'
+  buttonPress: require('../assets/audio/button.wav')
 };
 
-const MUSIC_PATH = '/assets/audio/background-music.mp3';
+const MUSIC_PATH = require('../assets/audio/bgm.wav');
 
 var musicElement = null;
 

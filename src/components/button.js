@@ -1,13 +1,13 @@
 import React from 'react';
-import { playSfx } from '../apis/sound';
+// import { playSfx } from '../apis/sound';
 
 class Button extends React.Component {
     onClick = (e) => {
         e.preventDefault();
 
-        if (this.props.playAudio) {
-            playSfx('buttonPress');
-        }
+        // if (this.props.playAudio) {
+        //     playSfx('buttonPress');
+        // }
 
         this.props.onClick(this.props.buttonValue);
     }
