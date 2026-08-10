@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_KEY = process.env.REACT_APP_GIPHY_API_KEY;
 const SEARCH_URL = 'https://api.giphy.com/v1/gifs/search';
-const MAX_OFFSET = 50;
+const MAX_OFFSET = 30;
 
 // Fetches a pool of GIF URLs for a search term. Returns an empty array
 // (rather than throwing) if there's no API key configured or the request
