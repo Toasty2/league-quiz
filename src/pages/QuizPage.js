@@ -276,7 +276,8 @@ class QuizPage extends React.Component {
     if (this.state.readyToSubmit) {
       return (
         <SubmitScoreScreen
-          score={this.state.score}
+          correctCount={this.state.score}
+          elapsedMs={this.state.elapsedMs}
           playerName={this.state.playerName}
           submitting={this.state.submitting}
           onNameChange={this.updatePlayerName}
