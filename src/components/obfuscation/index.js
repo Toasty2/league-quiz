@@ -1,12 +1,14 @@
 import BlurReveal from './BlurReveal';
+import LiquidReveal from './LiquidReveal';
 import SpiraliseReveal from './SpiraliseReveal';
+import ZoomReveal from './ZoomReveal';
 import PixellateReveal from './PixellateReveal';
 
 // Hard mode walks this fixed sequence by round number (round 0 = the first
 // question), looping back to the start once it runs out - not randomised,
 // so every player gets the same technique on the same round. Add another
 // technique by just adding another entry here.
-const TECHNIQUE_SEQUENCE = [PixellateReveal, BlurReveal, SpiraliseReveal];
+const TECHNIQUE_SEQUENCE = [PixellateReveal, BlurReveal, SpiraliseReveal, ZoomReveal, LiquidReveal];
 
 const DEFAULT_DURATION_MS = 30000;
 
