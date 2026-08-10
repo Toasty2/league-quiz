@@ -31,3 +31,15 @@ export function submitQuiz(sessionId, playerName) {
 export function getSplashProxyUrl(sessionId, round) {
   return `${process.env.REACT_APP_SUPABASE_URL}/functions/v1/splash-proxy?session=${sessionId}&round=${round}`;
 }
+
+export function getLeaderboard(limit = 20) {
+  return supabase
+    .from('scores')
+    .select('player_name, correct_count, elapsed_ms, final_score, created_at')
+    .order('final_score', { ascending: false })
+    .limit(limit)
+    .then(({ data, error }) => {
+      if (error) throw error;
+      return data;
+    });
+}

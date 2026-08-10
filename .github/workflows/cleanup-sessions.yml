@@ -1,0 +1,17 @@
+name: Cleanup abandoned quiz sessions
+
+on:
+  schedule:
+    # Once daily - well within Supabase's 7-day inactivity window, so this
+    # also serves as the project's keep-alive ping.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call cleanup-sessions Edge Function
+        run: |
+          curl -sf -X POST "https://mrbyenmhyydabecswhhe.supabase.co/functions/v1/cleanup-sessions" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}"
