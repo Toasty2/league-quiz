@@ -42,12 +42,6 @@ class ScoreboardPage extends React.Component {
   }
 
   render() {
-    if (this.state.loading) {
-      return (
-        <div className="App">Loading scoreboard...</div>
-      );
-    }
-
     return (
       <div className="App">
         <div className="container-bg">
@@ -75,33 +69,37 @@ class ScoreboardPage extends React.Component {
               </Link>
             </div>
 
-            <table>
-              <thead>
-                <tr>
-                  <th className="score-title">Name</th>
-                  <th className="score-title">Score</th>
-                  <th className="score-title">Correct</th>
-                  <th className="score-title">Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {this.state.scores.map((score, i) => {
-                  var isMine = score.session_id === this.props.highlightSessionId;
-                  return (
-                    <tr
-                      key={i}
-                      ref={isMine ? (el => { this.highlightedRowRef = el; }) : null}
-                      className={isMine ? 'score-row-highlight' : ''}
-                    >
-                      <td className="score-title">{score.player_name}</td>
-                      <td className="score-title">{score.final_score}</td>
-                      <td className="score-title">{score.correct_count} / 10</td>
-                      <td className="score-title">{(score.elapsed_ms / 1000).toFixed(3)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {this.state.loading ? (
+              <p className="score-title">Loading scoreboard...</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th className="score-title">Name</th>
+                    <th className="score-title">Score</th>
+                    <th className="score-title">Correct</th>
+                    <th className="score-title">Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {this.state.scores.map((score, i) => {
+                    var isMine = score.session_id === this.props.highlightSessionId;
+                    return (
+                      <tr
+                        key={i}
+                        ref={isMine ? (el => { this.highlightedRowRef = el; }) : null}
+                        className={isMine ? 'score-row-highlight' : ''}
+                      >
+                        <td className="score-title">{score.player_name}</td>
+                        <td className="score-title">{score.final_score}</td>
+                        <td className="score-title">{score.correct_count} / 10</td>
+                        <td className="score-title">{(score.elapsed_ms / 1000).toFixed(3)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
 
             <Link to="/" className="score-title">Back to quiz</Link>
           </main>
