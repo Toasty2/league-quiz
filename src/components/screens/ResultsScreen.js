@@ -20,15 +20,11 @@ function ResultsScreen({ score, finalScore, difficulty, onReset }) {
     <div id="app" className="App">
       <div className="container-bg">
         <div className="app-container">
-            <div className="row">
-              <div className="col-12">
-                <h1 className="score-title">{parseInt(score)} / 10</h1>
-                <h1 className="score-title">{scoreText[parseInt(score)]}</h1>
-                <h1 className="score-title">Final Score: {finalScore}</h1>
-                <button onClick={onReset}>Reset</button>
-                <Link to={`/scoreboard?difficulty=${difficulty}`} className="score-title">View Scoreboard</Link>
-              </div>
-            </div>
+          <h1 className="score-title">{parseInt(score)} / 10</h1>
+          <h1 className="score-title">{scoreText[parseInt(score)]}</h1>
+          <h1 className="score-title">Final Score: {finalScore}</h1>
+          <button onClick={onReset}>Reset</button>
+          <Link to={`/scoreboard?difficulty=${difficulty}`} className="score-title">View Scoreboard</Link>
         </div>
       </div>
 
