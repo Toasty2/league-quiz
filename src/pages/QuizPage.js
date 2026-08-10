@@ -8,7 +8,6 @@ import { preloadImage } from '../apis/ddragon';
 import { fetchGifPool } from '../apis/giphy';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
 // import { startMusic } from '../apis/sound';
-import LoadingScreen from '../components/screens/LoadingScreen';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
 import QuizScreen from '../components/screens/QuizScreen';
@@ -39,7 +38,6 @@ class QuizPage extends React.Component {
       checking: false,
       score: 0,
       round: 0,
-      loading: true,
       started: false,
       preparingQuiz: false,
       difficulty: null,
@@ -99,9 +97,6 @@ class QuizPage extends React.Component {
 
   componentDidMount = () => {
     this.sessionPromise = startQuizSession();
-    this.sessionPromise.then(() => {
-      this.setState({ loading: false });
-    });
 
     fetchGifPool('correct').then(gifs => {
       if (gifs.length > 0) {
@@ -259,10 +254,6 @@ class QuizPage extends React.Component {
   }
 
   render() {
-    if (this.state.loading) {
-      return <LoadingScreen />;
-    }
-
     if (!this.state.started) {
       return (
         <StartScreen
