@@ -123,11 +123,15 @@ class QuizPage extends React.Component {
 
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.finished && !prevState.finished) {
-      this.celebrateWin();
+      this.celebrateWin(this.state.score);
     }
   }
 
-  celebrateWin = () => {
+  celebrateWin = (score) => {
+    if (score <= 0) {
+      return;
+    }
+
     var myCanvas = document.createElement('canvas');
     myCanvas.className = 'confetti-bg';
     document.body.appendChild(myCanvas);
@@ -137,6 +141,10 @@ class QuizPage extends React.Component {
       useWorker: true
     });
 
+    // Scales linearly with correct answers - 7 (the original amount) at a
+    // perfect score, down to nothing at 0.
+    var particleCount = Math.round(7 * (score / 10));
+
     // do this for 1.5 seconds
     var duration = 1.5 * 1000;
     var end = Date.now() + duration;
@@ -144,14 +152,14 @@ class QuizPage extends React.Component {
     (function frame() {
       // launch a few confetti from the left edge
       myConfetti({
-        particleCount: 7,
+        particleCount: particleCount,
         angle: 60,
         spread: 55,
         origin: { x: 0 }
       });
       // and launch a few from the right edge
       myConfetti({
-        particleCount: 7,
+        particleCount: particleCount,
         angle: 120,
         spread: 55,
         origin: { x: 1 }
