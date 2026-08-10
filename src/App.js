@@ -1,13 +1,14 @@
 import React from 'react';
 import Confetti from 'canvas-confetti';
-import logo from './logo.svg';
+//import logo from './logo.svg';
 //import Riot from './apis/riot';
 import Champion from './components/champion';
 import Button from './components/button';
-import HeaderBar from './components/headerBar';
-import Stopwatch from './components/stopwatch';
-import { getChampionNames, getChampionIdMap, getSplashArtUrl, preloadImage } from './apis/ddragon';
+//import HeaderBar from './components/headerBar';
+//import Stopwatch from './components/stopwatch';
+import { preloadImage } from './apis/ddragon';
 import { fetchGifPool } from './apis/giphy';
+import { startQuizSession, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from './apis/supabase';
 
 import './App.css';
 import './league.css';
@@ -17,7 +18,7 @@ const DEFAULT_CORRECT_GIF = 'https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/2
 const DEFAULT_INCORRECT_GIF = 'https://c.tenor.com/zIm8X37R8cIAAAAC/b99-chelsea-peretti.gif';
 
 class App extends React.Component {
-  state = { 
+  state = {
     onClick: '',
     wasUserCorrect: '',
     answered: false,
@@ -30,15 +31,23 @@ class App extends React.Component {
     super(props);
 
     this.state = {
+      sessionId: null,
       questions: [],
-      correctAnswer: '',
       answerOptions: [],
+      onClick: '',
+      wasUserCorrect: '',
+      answered: false,
+      checking: false,
       score: 0,
       round: 0,
       loading: true,
       started: false,
       preparingQuiz: false,
+      readyToSubmit: false,
+      playerName: '',
+      submitting: false,
       finished: false,
+      finalScore: null,
       elapsedMs: 0,
       correctGifPool: [DEFAULT_CORRECT_GIF],
       incorrectGifPool: [DEFAULT_INCORRECT_GIF],
@@ -50,27 +59,6 @@ class App extends React.Component {
     this.stopTimer();
   }
 
-  // Picks all rounds' questions and preloads their splash art in parallel.
-  generateQuestionSet = (amount = 10) => {
-    var questions = [];
-    for (var i = 0; i < amount; i++) {
-      var correctChamp = this.getRandomChamp();
-      questions.push({
-        correctAnswer: correctChamp,
-        answerOptions: this.pickAnswerOptions(correctChamp)
-      });
-    }
-
-    return getChampionIdMap().then(idsByName => {
-      var preloads = questions.map(question => {
-        var champId = idsByName[question.correctAnswer] || question.correctAnswer;
-        return preloadImage(getSplashArtUrl(champId));
-      });
-
-      return Promise.all(preloads).then(() => questions);
-    });
-  }
-
   startQuiz = () => {
     if (this.state.preparingQuiz || this.state.started) {
       return;
@@ -78,15 +66,21 @@ class App extends React.Component {
 
     this.setState({ preparingQuiz: true });
 
-    this.questionSetPromise.then(questions => {
-      this.setState({
-        questions: questions,
-        correctAnswer: questions[0].correctAnswer,
-        answerOptions: questions[0].answerOptions,
-        started: true,
-        preparingQuiz: false
-      });
-      this.startTimer();
+    this.sessionPromise.then(({ sessionId, questions }) => {
+      var preloads = questions.map((question, round) => preloadImage(getSplashProxyUrl(sessionId, round)));
+
+      return Promise.all(preloads)
+        .then(() => beginSession(sessionId))
+        .then(() => {
+          this.setState({
+            sessionId: sessionId,
+            questions: questions,
+            answerOptions: questions[0].options,
+            started: true,
+            preparingQuiz: false
+          });
+          this.startTimer();
+        });
     });
   }
 
@@ -110,16 +104,9 @@ class App extends React.Component {
     return `${minutes}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
   }
 
-  calculateFinalScore = () => {
-    var elapsedSeconds = this.state.elapsedMs / 1000;
-    return Math.max(0, Math.round(this.state.score * 1000 - elapsedSeconds * 10));
-  }
-
   componentDidMount = () => {
-    getChampionNames().then(champNames => {
-      this.champNames = champNames;
-      this.questionSetPromise = this.generateQuestionSet(10);
-
+    this.sessionPromise = startQuizSession();
+    this.sessionPromise.then(() => {
       this.setState({ loading: false });
     });
 
@@ -143,7 +130,6 @@ class App extends React.Component {
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.finished && !prevState.finished) {
       this.celebrateWin();
-      this.stopTimer();
     }
   }
 
@@ -185,9 +171,17 @@ class App extends React.Component {
   }
 
 
-  onAnswerClick = (onClick) => {
-    (onClick == this.state.correctAnswer) ? this.handleCorrectAnswer(onClick) : this.handleIncorrectAnswer();
-    //console.log('Correct answer is ' + this.state.correctAnswer + ' User selected ' + onClick + ' score is ' + this.state.score);
+  onAnswerClick = (selected) => {
+    if (this.state.checking || this.state.answered) {
+      return;
+    }
+
+    this.setState({ checking: true });
+
+    checkAnswer(this.state.sessionId, this.state.round, selected).then(({ correct }) => {
+      this.setState({ checking: false });
+      correct ? this.handleCorrectAnswer(selected) : this.handleIncorrectAnswer();
+    });
   }
 
   // Picks a GIF from an already-fetched pool. Called once per round, at the
@@ -200,6 +194,10 @@ class App extends React.Component {
   handleCorrectAnswer = (onClick) => {
     var newScore = this.state.score + 1;
     var newRound = this.state.round + 1;
+
+    if (newRound >= 10) {
+      this.stopTimer();
+    }
 
     this.setState({
       wasUserCorrect: true,
@@ -214,35 +212,16 @@ class App extends React.Component {
   handleIncorrectAnswer = () => {
     var newRound = this.state.round + 1;
 
+    if (newRound >= 10) {
+      this.stopTimer();
+    }
+
     this.setState({
       wasUserCorrect: false,
       answered: true,
       round: newRound,
       resultGifUrl: this.pickRandomGif(this.state.incorrectGifPool)
     });
-  }
-
-  getRandomChamp = (amount = 1) => {
-    var champList = [];
-    for (var i = 1; i <= amount; i++) {
-      var random = Math.floor(Math.random() * this.champNames.length);
-      //console.log('random is ' + random);
-      champList.push(this.champNames[random]);
-    }
-
-    return champList;
-  }
-
-  pickAnswerOptions = (correctAnswer, amount = 3) => {
-    var answers = this.getRandomChamp(amount);
-    // Slot in the correct answer
-    answers.push(correctAnswer.toString());
-    // Randomise the array
-    this.shuffleArray(answers);
-
-    //console.log(answers);
-
-    return answers;
   }
 
   renderAnswerButtons = () => {
@@ -262,18 +241,36 @@ class App extends React.Component {
 
   runNextRound = () => {
     if (this.state.round >= 10) {
-      this.setState({ finished: true });
+      this.setState({ readyToSubmit: true });
       return;
     }
 
     var nextQuestion = this.state.questions[this.state.round];
-    //console.log('running next round. Champ is ' + nextQuestion.correctAnswer[0]);
 
     this.setState({
-      correctAnswer: nextQuestion.correctAnswer,
-      answerOptions: nextQuestion.answerOptions,
+      answerOptions: nextQuestion.options,
       answered: false,
       wasUserCorrect: false
+    });
+  }
+
+  updatePlayerName = (event) => {
+    this.setState({ playerName: event.target.value });
+  }
+
+  submitScore = () => {
+    if (this.state.submitting || !this.state.playerName.trim()) {
+      return;
+    }
+
+    this.setState({ submitting: true });
+
+    submitQuiz(this.state.sessionId, this.state.playerName.trim()).then(result => {
+      this.setState({
+        finished: true,
+        submitting: false,
+        finalScore: result.finalScore
+      });
     });
   }
 
@@ -281,17 +278,7 @@ class App extends React.Component {
     window.location.reload();
   }
 
-  /* Randomize array in-place using Durstenfeld shuffle algorithm - https://stackoverflow.com/a/12646864 */
-  shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
-
   render() {
-    //console.log('champ is ' + this.state.correctAnswer);
-
     if (this.state.loading) {
       return (
         <div className="App">Loading champions...</div>
@@ -306,6 +293,22 @@ class App extends React.Component {
               <div className="start-screen">
                 <h1 className="question-title">League of Legends Quiz</h1>
                 <Button id="startQuiz" buttonValue={this.state.preparingQuiz ? "Preparing..." : "Start"} onClick={this.startQuiz} />
+              </div>
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    if (this.state.readyToSubmit && !this.state.finished) {
+      return (
+        <div className="App">
+          <div className="container-bg">
+            <main className="app-container">
+              <div className="start-screen">
+                <h1 className="question-title">Enter your name</h1>
+                <input type="text" value={this.state.playerName} onChange={this.updatePlayerName} maxLength={30} />
+                <Button id="submitScore" buttonValue={this.state.submitting ? "Submitting..." : "Submit score"} onClick={this.submitScore} />
               </div>
             </main>
           </div>
@@ -337,7 +340,7 @@ class App extends React.Component {
                   <div className="col-12">
                     <h1 className="score-title">{parseInt(this.state.score)} / 10</h1>
                     <h1 className="score-title">{scoreText[parseInt(this.state.score)]}</h1>
-                    <h1 className="score-title">Final Score: {this.calculateFinalScore()}</h1>
+                    <h1 className="score-title">Final Score: {this.state.finalScore}</h1>
                     <button onClick={this.resetQuiz}>Reset</button>
                   </div>
                 </div>
@@ -354,7 +357,7 @@ class App extends React.Component {
             <main className="app-container">
               <div className="grid grid-cols-1 md:grid-cols-2 items-center">
                 <div className="py-6 mx-auto">
-                  <Champion champName={this.state.correctAnswer} answered={this.state.answered} wasUserCorrect={this.state.wasUserCorrect} />
+                  <Champion sessionId={this.state.sessionId} round={this.state.round} answerOptions={this.state.answerOptions} answered={this.state.answered} wasUserCorrect={this.state.wasUserCorrect} />
                 </div>
                 <div className="py-6 items-center">
                   <div className="grid grid-cols-2">
@@ -366,7 +369,7 @@ class App extends React.Component {
                     </div>
                   </div>
 
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2">
                     {this.state.answered ? "" : this.renderAnswerButtons()}
                   </div>
@@ -378,7 +381,7 @@ class App extends React.Component {
                     <img src={this.state.resultGifUrl} alt="Incorrect reaction GIF" />
                     <Button id="nextRound" buttonValue={this.state.round >= 10 ? "See results" : "Next round"} onClick = {this.runNextRound} />
                   </div>
-                  
+
                   <div className="flex-row">
                     <div className="score-title text-left uppercase">
                       Round: {parseInt(this.state.round)} / 10

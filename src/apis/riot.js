@@ -33,7 +33,7 @@ class Riot extends React.Component {
 
         return (
             <div className="ui relaxed divided list">
-                <img src={summonerIcon} />
+                <img src={summonerIcon} alt={this.state.summonerData.name} />
                 <br />
                 Hello, {this.state.summonerData.name}. Your summoner level is {this.state.summonerData.summonerLevel} and your super secret account ID is {this.state.summonerData.accountId}
             </div>

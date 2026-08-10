@@ -1,6 +1,5 @@
 import React from 'react';
-import axios from 'axios';
-import { getLatestVersion, getChampionIdMap, getSplashArtUrl } from '../apis/ddragon';
+import { getSplashProxyUrl } from '../apis/supabase';
 
 class Champion extends React.Component {
 
@@ -8,9 +7,6 @@ class Champion extends React.Component {
         super(props);
 
         this.state = {
-            champData: [],
-            errorMessage: '',
-            loading: true,
             // The card has exactly two physical faces. Rather than fixing
             // "front = card back, back = splash art", each face just holds
             // whatever content was placed there most recently, and every
@@ -39,7 +35,7 @@ class Champion extends React.Component {
 
             console.log(data);
 
-            this.setState({ 
+            this.setState({
                 champData: data,
                 loading: false,
             });
@@ -49,18 +45,6 @@ class Champion extends React.Component {
             console.error('There was an error!', error);
         });
     }*/
-
-    fetchChamp = async (champName, champDataSource) => {
-        this.setState({ loading: true });
-        const response = await axios.get(champDataSource, {});
-
-        //console.log(response);
-
-        this.setState({ 
-            champData: response,
-            loading: false,
-        });
-    }
 
     // Puts new content on whichever face isn't currently showing, then flips
     // to it a moment later - the small delay guarantees a paint happens with
@@ -82,16 +66,8 @@ class Champion extends React.Component {
         }, 30);
     }
 
-    loadChamp = (champName) => {
-        //console.log('champion from champion.js is ' + champName);
-
-        Promise.all([getLatestVersion(), getChampionIdMap()]).then(([version, idsByName]) => {
-            var champId = idsByName[champName] || champName;
-            const champDataSource = `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion/${champId}.json`;
-
-            this.fetchChamp(champName, champDataSource);
-            this.flipToShow({ type: 'splash', champId: champId });
-        });
+    loadChamp = (round) => {
+        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, round) });
     }
 
     showResult = (wasUserCorrect) => {
@@ -99,7 +75,7 @@ class Champion extends React.Component {
     }
 
     componentDidMount = () => {
-        this.loadChamp(this.props.champName);
+        this.loadChamp(this.props.round);
     }
 
     componentDidUpdate = (prevProps, prevState) => {
@@ -113,8 +89,8 @@ class Champion extends React.Component {
         //}*/
         //this.setState({ champName: this.state.champName });
 
-        if (prevProps.champName !== this.props.champName) {
-            this.loadChamp(this.props.champName);
+        if (prevProps.answerOptions !== this.props.answerOptions) {
+            this.loadChamp(this.props.round);
         } else if (!prevProps.answered && this.props.answered) {
             this.showResult(this.props.wasUserCorrect);
         }
@@ -136,12 +112,10 @@ class Champion extends React.Component {
         }
 
         if (content.type === 'splash') {
-            var splashImage = getSplashArtUrl(content.champId);
             return (
                 <div className="ui relaxed divided list test champion-splash relative">
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
-                    <img src={splashImage} alt="Champion splash art" className="champion-splash-art" />
-                    <h2 className="champion-reveal"></h2>
+                    <img src={content.proxyUrl} alt="Champion splash art" className="champion-splash-art" />
                 </div>
             );
         }
