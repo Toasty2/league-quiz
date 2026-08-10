@@ -72,13 +72,13 @@ class ScoreboardPage extends React.Component {
             {this.state.loading ? (
               <p className="score-title">Loading scoreboard...</p>
             ) : (
-              <table>
+              <table className="mx-auto">
                 <thead>
                   <tr>
-                    <th className="score-title">Name</th>
-                    <th className="score-title">Score</th>
-                    <th className="score-title">Correct</th>
-                    <th className="score-title">Time</th>
+                    <th className="score-title px-6">Name</th>
+                    <th className="score-title px-6">Score</th>
+                    <th className="score-title px-6">Correct</th>
+                    <th className="score-title px-6">Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -90,10 +90,10 @@ class ScoreboardPage extends React.Component {
                         ref={isMine ? (el => { this.highlightedRowRef = el; }) : null}
                         className={isMine ? 'score-row-highlight' : ''}
                       >
-                        <td className="score-title">{score.player_name}</td>
-                        <td className="score-title">{score.final_score}</td>
-                        <td className="score-title">{score.correct_count} / 10</td>
-                        <td className="score-title">{(score.elapsed_ms / 1000).toFixed(3)}</td>
+                        <td className="score-title px-6">{score.player_name}</td>
+                        <td className="score-title px-6">{score.final_score}</td>
+                        <td className="score-title px-6">{score.correct_count} / 10</td>
+                        <td className="score-title px-6">{(score.elapsed_ms / 1000).toFixed(3)}</td>
                       </tr>
                     );
                   })}
