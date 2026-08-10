@@ -5,7 +5,7 @@ import { formatElapsedTime } from '../../utils/formatTime';
 
 function renderAnswerButtons(answerOptions, selectedAnswer, onAnswerClick) {
   return answerOptions.map(champ => (
-    <Button key={champ} id={champ} buttonValue={champ} onClick={onAnswerClick} className={`${selectedAnswer === champ ? "button-correct answer" : "answer"}`} />
+    <Button key={champ} id={champ} buttonValue={champ} onClick={onAnswerClick} className={`${selectedAnswer === champ ? "button-correct answer" : "answer"}`} playAudio />
   ));
 }
 

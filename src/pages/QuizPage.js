@@ -7,6 +7,7 @@ import Confetti from 'canvas-confetti';
 import { preloadImage } from '../apis/ddragon';
 import { fetchGifPool } from '../apis/giphy';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
+import { startMusic } from '../apis/sound';
 import LoadingScreen from '../components/screens/LoadingScreen';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
@@ -62,6 +63,7 @@ class QuizPage extends React.Component {
     }
 
     this.setState({ preparingQuiz: true, difficulty });
+    startMusic();
 
     this.sessionPromise.then(({ sessionId, questions }) => {
       return setDifficulty(sessionId, difficulty)
