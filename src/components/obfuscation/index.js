@@ -1,26 +1,19 @@
-import React from 'react';
-// import BlurReveal from './BlurReveal';
-import PixelateReveal from './PixelateReveal';
+import BlurReveal from './BlurReveal';
+import SpiraliseReveal from './SpiraliseReveal';
+import PixellateReveal from './PixellateReveal';
 
-// Hard mode techniques: components taking { proxyUrl, alt, className, progress }, progress 0 (obscured) to 1 (revealed)
-const TECHNIQUES = {
-  // blur: BlurReveal,
-  pixelate: PixelateReveal,
-};
+// Hard mode walks this fixed sequence by round number (round 0 = the first
+// question), looping back to the start once it runs out - not randomised,
+// so every player gets the same technique on the same round. Add another
+// technique by just adding another entry here.
+const TECHNIQUE_SEQUENCE = [PixellateReveal, BlurReveal, SpiraliseReveal];
 
-const TECHNIQUE_IDS = Object.keys(TECHNIQUES);
 const DEFAULT_DURATION_MS = 30000;
 
-export function pickRandomTechnique() {
-  return TECHNIQUE_IDS[Math.floor(Math.random() * TECHNIQUE_IDS.length)];
+export function getTechniqueForRound(round) {
+  return TECHNIQUE_SEQUENCE[round % TECHNIQUE_SEQUENCE.length];
 }
 
-export function getRevealDuration(techniqueId) {
-  var Technique = TECHNIQUES[techniqueId];
-  return (Technique && Technique.durationMs) || DEFAULT_DURATION_MS;
-}
-
-export function renderObfuscated(techniqueId, props) {
-  var Technique = TECHNIQUES[techniqueId] || PixelateReveal;
-  return <Technique {...props} />;
+export function getRevealDuration(technique) {
+  return technique.durationMs || DEFAULT_DURATION_MS;
 }

@@ -5,9 +5,7 @@ import { formatElapsedTime } from '../../utils/formatTime';
 
 function renderAnswerButtons(answerOptions, selectedAnswer, onAnswerClick) {
   return answerOptions.map(champ => (
-    <div className="p-6" key={champ}>
-      <Button id={champ} buttonValue={champ} onClick={onAnswerClick} className={`${selectedAnswer === champ ? "button-correct answer" : "answer"}`} />
-    </div>
+    <Button key={champ} id={champ} buttonValue={champ} onClick={onAnswerClick} className={`${selectedAnswer === champ ? "button-correct answer" : "answer"}`} />
   ));
 }
 
@@ -44,7 +42,7 @@ function QuizScreen({
               </div>
 
 
-              <div className="grid grid-cols-1 md:grid-cols-2">
+              <div className="grid grid-cols-2 gap-x-8 gap-y-6 py-6">
                 {answered ? "" : renderAnswerButtons(answerOptions, selectedAnswer, onAnswerClick)}
               </div>
               <div className={`right-answer ${wasUserCorrect && answered ? "correct" : ""}`}>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const MAX_BLUR_PX = 25;
+const MAX_BLUR_PX = 50;
 
 function BlurReveal({ proxyUrl, alt, className, progress }) {
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { getSplashProxyUrl } from '../apis/supabase';
-import { pickRandomTechnique, getRevealDuration, renderObfuscated } from './obfuscation';
+import { getTechniqueForRound, getRevealDuration } from './obfuscation';
 
 class Champion extends React.Component {
 
@@ -71,17 +71,17 @@ class Champion extends React.Component {
     loadChamp = (round) => {
         this.stopReveal();
 
-        var techniqueId = this.props.difficulty === 'hard' ? pickRandomTechnique() : null;
-        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, round), techniqueId });
+        var technique = this.props.difficulty === 'hard' ? getTechniqueForRound(round) : null;
+        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, round), technique });
 
-        if (techniqueId) {
-            this.startReveal(techniqueId);
+        if (technique) {
+            this.startReveal(technique);
         }
     }
 
-    startReveal = (techniqueId) => {
+    startReveal = (technique) => {
         var startTime = Date.now();
-        var durationMs = getRevealDuration(techniqueId);
+        var durationMs = getRevealDuration(technique);
         this.setState({ revealProgress: 0 });
 
         this.revealInterval = setInterval(() => {
@@ -145,16 +145,17 @@ class Champion extends React.Component {
         }
 
         if (content.type === 'splash') {
+            var Technique = content.technique;
             return (
                 <div className="ui relaxed divided list test champion-splash relative">
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
-                    {content.techniqueId
-                        ? renderObfuscated(content.techniqueId, {
-                            proxyUrl: content.proxyUrl,
-                            alt: 'Champion splash art',
-                            className: 'champion-splash-art',
-                            progress: this.state.revealProgress
-                        })
+                    {Technique
+                        ? <Technique
+                            proxyUrl={content.proxyUrl}
+                            alt="Champion splash art"
+                            className="champion-splash-art"
+                            progress={this.state.revealProgress}
+                          />
                         : <img src={content.proxyUrl} alt="Champion splash art" className="champion-splash-art" />}
                 </div>
             );

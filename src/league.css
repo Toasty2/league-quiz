@@ -5,6 +5,8 @@
     background-image: url('./assets/img/TearSheetMagic.png'), url('./assets/img/TearSheetMagic2.png');
     background-position: right top, left bottom;
     background-repeat: no-repeat, no-repeat;
+    padding-left: 24px;
+    padding-right: 24px;
 }
 
 .container-fluid {
@@ -23,7 +25,7 @@
     height: 1024px;
     left: 0px;
     top: 0px;*/
-    height: 100vh;
+    min-height: 100vh;
     background: linear-gradient(270deg, #091428 0%, #0A1428 100%);
 }
 
@@ -104,10 +106,6 @@
     padding-left: 24px;
     padding-right: 24px;
     white-space: nowrap;
-}
-
-.answer-button.answer {
-    width: 320px;
 }
 
 .answer-button::after {
@@ -252,4 +250,5 @@
 
 .answer {
     width: 100%;
+    max-width: 320px;
 }

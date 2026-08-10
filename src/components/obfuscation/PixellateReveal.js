@@ -3,10 +3,10 @@ import React from 'react';
 // Matches Data Dragon's splash art dimensions (see .flip-card in league.css)
 const SOURCE_WIDTH = 308;
 const SOURCE_HEIGHT = 560;
-const MAX_BLOCK_SIZE = 40;
+const MAX_BLOCK_SIZE = 80;
 
-// Low-res draw scaled back up with smoothing off - the standard pixelation trick.
-class PixelateReveal extends React.Component {
+// Low-res draw scaled back up with smoothing off - the standard pixellation trick.
+class PixellateReveal extends React.Component {
   canvasRef = React.createRef();
   imgRef = React.createRef();
 
@@ -59,6 +59,6 @@ class PixelateReveal extends React.Component {
 }
 
 // Ms to go from fully obscured to fully revealed
-PixelateReveal.durationMs = 30000;
+PixellateReveal.durationMs = 30000;
 
-export default PixelateReveal;
+export default PixellateReveal;
