@@ -53,7 +53,7 @@ class QuizPage extends React.Component {
   }
 
   componentWillUnmount = () => {
-    this.stopTimer();
+    this.pauseTimer();
   }
 
   startQuiz = (difficulty) => {
@@ -86,15 +86,18 @@ class QuizPage extends React.Component {
     });
   }
 
+  // Also doubles as resume: picks up from the current elapsedMs rather than
+  // restarting the clock, so pauseTimer/startTimer can alternate freely.
   startTimer = () => {
-    var startTime = Date.now();
+    var resumeFrom = this.state.elapsedMs;
+    var resumeTime = Date.now();
 
     this.timerInterval = setInterval(() => {
-      this.setState({ elapsedMs: Date.now() - startTime });
+      this.setState({ elapsedMs: resumeFrom + (Date.now() - resumeTime) });
     }, 100);
   }
 
-  stopTimer = () => {
+  pauseTimer = () => {
     clearInterval(this.timerInterval);
   }
 
@@ -121,6 +124,14 @@ class QuizPage extends React.Component {
   componentDidUpdate = (prevProps, prevState) => {
     if (this.state.readyToSubmit && !prevState.readyToSubmit) {
       this.celebrateWin(this.state.score);
+    }
+
+    // The timer pauses the instant an answer is clicked (see onAnswerClick)
+    // and only resumes once the next round has actually started, rather than
+    // the instant "Next round" is clicked - so round setup time doesn't
+    // count against the player
+    if (prevState.answered && !this.state.answered) {
+      this.startTimer();
     }
   }
 
@@ -177,6 +188,7 @@ class QuizPage extends React.Component {
       return;
     }
 
+    this.pauseTimer();
     this.setState({ checking: true, checkingAnswer: selected });
 
     checkAnswer(this.state.sessionId, this.state.round, selected).then(({ correct }) => {
@@ -196,10 +208,6 @@ class QuizPage extends React.Component {
     var newScore = this.state.score + 1;
     var newRound = this.state.round + 1;
 
-    if (newRound >= 10) {
-      this.stopTimer();
-    }
-
     this.setState({
       wasUserCorrect: true,
       answered: true,
@@ -212,10 +220,6 @@ class QuizPage extends React.Component {
 
   handleIncorrectAnswer = () => {
     var newRound = this.state.round + 1;
-
-    if (newRound >= 10) {
-      this.stopTimer();
-    }
 
     this.setState({
       wasUserCorrect: false,
