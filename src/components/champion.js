@@ -160,13 +160,18 @@ class Champion extends React.Component {
             return (
                 <div className={`ui relaxed divided list test champion-splash relative${spinClass}`}>
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
+                    {/* No fallback: preloadTechniques means this never actually suspends. */}
                     {Technique
-                        ? <Technique
-                            proxyUrl={content.proxyUrl}
-                            alt="Champion splash art"
-                            className="champion-splash-art"
-                            progress={this.state.revealProgress}
-                          />
+                        ? (
+                            <React.Suspense>
+                                <Technique
+                                    proxyUrl={content.proxyUrl}
+                                    alt="Champion splash art"
+                                    className="champion-splash-art"
+                                    progress={this.state.revealProgress}
+                                />
+                            </React.Suspense>
+                          )
                         : <img src={content.proxyUrl} alt="Champion splash art" className="champion-splash-art" />}
                 </div>
             );

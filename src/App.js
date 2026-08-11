@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import QuizPage from './pages/QuizPage';
-import ScoreboardPage from './pages/ScoreboardPage';
+
+const ScoreboardPage = React.lazy(() => import('./pages/ScoreboardPage'));
 
 // QuizPage/ScoreboardPage stay plain class components like the rest of the
 // pages; these wrappers adapt router hooks (only usable in function
@@ -16,7 +17,11 @@ function ScoreboardRoute() {
   const location = useLocation();
   const requested = searchParams.get('difficulty');
   const difficulty = ['easy', 'hard', 'challenger'].includes(requested) ? requested : 'easy';
-  return <ScoreboardPage difficulty={difficulty} highlightSessionId={location.state?.sessionId} />;
+  return (
+    <Suspense fallback={<div className="container-bg" />}>
+      <ScoreboardPage difficulty={difficulty} highlightSessionId={location.state?.sessionId} />
+    </Suspense>
+  );
 }
 
 function App() {

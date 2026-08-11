@@ -1,14 +1,21 @@
-import BlurReveal from './BlurReveal';
-import LiquidReveal from './LiquidReveal';
-import MosaicReveal from './MosaicReveal';
-import SpiraliseReveal from './SpiraliseReveal';
-import ZoomReveal from './ZoomReveal';
-import PixellateReveal from './PixellateReveal';
+import React from 'react';
 
-// Hard mode walks this fixed sequence by round number (round 0 = the first
-// question), looping back to the start once it runs out - not randomised,
-// so every player gets the same technique on the same round. Add another
-// technique by just adding another entry here.
+// durationMs/preload live on the wrapper since neither is readable without eagerly loading the real component.
+function declareTechnique(importTechnique, durationMs) {
+  var Component = React.lazy(importTechnique);
+  Component.durationMs = durationMs;
+  Component.preload = importTechnique;
+  return Component;
+}
+
+const BlurReveal = declareTechnique(() => import('./BlurReveal'), 30000);
+const LiquidReveal = declareTechnique(() => import('./LiquidReveal'), 30000);
+const MosaicReveal = declareTechnique(() => import('./MosaicReveal'), 30000);
+const SpiraliseReveal = declareTechnique(() => import('./SpiraliseReveal'), 30000);
+const ZoomReveal = declareTechnique(() => import('./ZoomReveal'), 30000);
+const PixellateReveal = declareTechnique(() => import('./PixellateReveal'), 30000);
+
+// Hard mode cycles this by round number - not randomised, same for every player.
 const TECHNIQUE_SEQUENCE = [PixellateReveal, BlurReveal, SpiraliseReveal, ZoomReveal, LiquidReveal];
 
 // Challenger reuses this set with MosaicReveal in place of PixellateReveal.
@@ -20,8 +27,7 @@ export function getTechniqueForRound(round) {
   return TECHNIQUE_SEQUENCE[round % TECHNIQUE_SEQUENCE.length];
 }
 
-// Challenger plays each technique exactly twice, but shuffles the order once
-// per game rather than walking a fixed sequence.
+// Shuffled once per game; plays each technique exactly twice.
 export function buildChallengerSequence() {
   var sequence = CHALLENGER_TECHNIQUES.concat(CHALLENGER_TECHNIQUES);
   for (var i = sequence.length - 1; i > 0; i--) {
@@ -33,4 +39,13 @@ export function buildChallengerSequence() {
 
 export function getRevealDuration(technique) {
   return technique.durationMs || DEFAULT_DURATION_MS;
+}
+
+// Preloads every chunk a difficulty could use, so Suspense never actually suspends.
+export function preloadTechniques(difficulty) {
+  var techniques = difficulty === 'challenger' ? CHALLENGER_TECHNIQUES
+    : difficulty === 'hard' ? TECHNIQUE_SEQUENCE
+    : [];
+
+  return Promise.all(techniques.map((technique) => technique.preload()));
 }

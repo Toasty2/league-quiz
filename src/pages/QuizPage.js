@@ -1,11 +1,11 @@
 import React from 'react';
-import Confetti from 'canvas-confetti';
 //import logo from '../logo.svg';
 //import Riot from '../apis/riot';
 //import HeaderBar from '../components/headerBar';
 //import Stopwatch from '../components/stopwatch';
 import { preloadImage } from '../apis/ddragon';
 import { fetchGifPool } from '../apis/giphy';
+import { preloadTechniques } from '../components/obfuscation';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
 // import { startMusic } from '../apis/sound';
 import StartScreen from '../components/screens/StartScreen';
@@ -66,8 +66,8 @@ class QuizPage extends React.Component {
     this.sessionPromise.then(({ sessionId, questions }) => {
       return setDifficulty(sessionId, difficulty)
         .then(() => {
-          var preloads = questions.map((question, round) => preloadImage(getSplashProxyUrl(sessionId, round)));
-          return Promise.all(preloads);
+          var imagePreloads = questions.map((question, round) => preloadImage(getSplashProxyUrl(sessionId, round)));
+          return Promise.all([...imagePreloads, preloadTechniques(difficulty)]);
         })
         .then(() => beginSession(sessionId))
         .then(() => {
@@ -126,44 +126,46 @@ class QuizPage extends React.Component {
       return;
     }
 
-    var myCanvas = document.createElement('canvas');
-    myCanvas.className = 'confetti-bg';
-    document.body.appendChild(myCanvas);
+    import('canvas-confetti').then(({ default: Confetti }) => {
+      var myCanvas = document.createElement('canvas');
+      myCanvas.className = 'confetti-bg';
+      document.body.appendChild(myCanvas);
 
-    var myConfetti = Confetti.create(myCanvas, {
-      resize: true,
-      useWorker: true
+      var myConfetti = Confetti.create(myCanvas, {
+        resize: true,
+        useWorker: true
+      });
+
+      // Scales linearly with correct answers - 7 (the original amount) at a
+      // perfect score, down to nothing at 0.
+      var particleCount = Math.round(7 * (score / 10));
+
+      // do this for 1.5 seconds
+      var duration = 1.5 * 1000;
+      var end = Date.now() + duration;
+
+      (function frame() {
+        // launch a few confetti from the left edge
+        myConfetti({
+          particleCount: particleCount,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        // and launch a few from the right edge
+        myConfetti({
+          particleCount: particleCount,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+
+        // keep going until we are out of time
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
     });
-
-    // Scales linearly with correct answers - 7 (the original amount) at a
-    // perfect score, down to nothing at 0.
-    var particleCount = Math.round(7 * (score / 10));
-
-    // do this for 1.5 seconds
-    var duration = 1.5 * 1000;
-    var end = Date.now() + duration;
-
-    (function frame() {
-      // launch a few confetti from the left edge
-      myConfetti({
-        particleCount: particleCount,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 }
-      });
-      // and launch a few from the right edge
-      myConfetti({
-        particleCount: particleCount,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 }
-      });
-
-      // keep going until we are out of time
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
-      }
-    }());
   }
 
 
