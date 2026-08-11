@@ -7,7 +7,6 @@ import { preloadImage } from '../apis/ddragon';
 import { fetchGifPool } from '../apis/giphy';
 import { preloadTechniques } from '../components/obfuscation';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
-// import { startMusic } from '../apis/sound';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
 import QuizScreen from '../components/screens/QuizScreen';
@@ -62,7 +61,6 @@ class QuizPage extends React.Component {
     }
 
     this.setState({ preparingQuiz: true, difficulty });
-    // startMusic();
 
     this.sessionPromise.then(({ sessionId, questions }) => {
       return setDifficulty(sessionId, difficulty)

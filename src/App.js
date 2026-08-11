@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import QuizPage from './pages/QuizPage';
+import AudioToggle from './components/AudioToggle';
 
 const ScoreboardPage = React.lazy(() => import('./pages/ScoreboardPage'));
 
@@ -26,10 +27,13 @@ function ScoreboardRoute() {
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<QuizRoute />} />
-      <Route path="/scoreboard" element={<ScoreboardRoute />} />
-    </Routes>
+    <>
+      <AudioToggle />
+      <Routes>
+        <Route path="/" element={<QuizRoute />} />
+        <Route path="/scoreboard" element={<ScoreboardRoute />} />
+      </Routes>
+    </>
   );
 }
 

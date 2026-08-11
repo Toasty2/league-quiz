@@ -1,13 +1,13 @@
 import React from 'react';
-// import { playSfx } from '../apis/sound';
+import { isMuted } from '../apis/audioPreference';
 
 class Button extends React.Component {
     onClick = (e) => {
         e.preventDefault();
 
-        // if (this.props.playAudio) {
-        //     playSfx('buttonPress');
-        // }
+        if (this.props.playAudio && !isMuted()) {
+            import('../apis/sound').then(({ playSfx }) => playSfx('buttonPress'));
+        }
 
         this.props.onClick(this.props.buttonValue);
     }
