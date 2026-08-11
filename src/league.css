@@ -213,6 +213,20 @@
         line-height: 80px;
         padding-bottom: 20px;
     }
+
+    .scoreboard-screen {
+        padding-top: 5vh;
+    }
+
+    .scoreboard-screen .question-title {
+        font-size: 36px;
+        line-height: 44px;
+        padding-bottom: 20px;
+    }
+
+    .scoreboard-screen .score-title {
+        font-size: 14px;
+    }
 }
 
 .score-title {
