@@ -80,6 +80,8 @@ class QuizPage extends React.Component {
           });
           this.startTimer();
         });
+    }).catch(() => {
+      this.setState({ preparingQuiz: false, difficulty: null });
     });
   }
 
