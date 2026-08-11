@@ -48,6 +48,7 @@
     left: 0px;
     top: 0px;*/
     min-height: 100vh;
+    overflow-x: hidden;
     background: linear-gradient(270deg, #091428 0%, #0A1428 100%);
 }
 
@@ -226,6 +227,38 @@
 
     .scoreboard-screen .score-title {
         font-size: 14px;
+    }
+
+    .quiz-stats-bar .score-title {
+        line-height: 28px;
+        text-align: center;
+    }
+
+    /* Stretch to the button's actual box rather than the image's own fixed size, which no longer matches once the grid narrows. */
+    .answer img {
+        top: 0;
+        bottom: 0;
+        left: 6px;
+        right: auto;
+        width: calc(100% - 12px);
+        height: 100%;
+        transform: none;
+    }
+
+    .right-answer img, .wrong-answer img {
+        display: none;
+    }
+
+    .answer-text-md {
+        font-size: 18px;
+    }
+
+    .answer-text-sm {
+        font-size: 15px;
+    }
+
+    .answer-text-xs {
+        font-size: 12px;
     }
 }
 

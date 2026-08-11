@@ -3,12 +3,22 @@ import Champion from '../champion';
 import Button from '../button';
 import { formatElapsedTime } from '../../utils/formatTime';
 
+// Long champion names (e.g. "Heimerdinger") don't fit the mobile answer
+// button at the default size - step the font down instead of wrapping/cutting off.
+function getNameSizeClass(name) {
+  if (name.length >= 14) return 'answer-text-xs';
+  if (name.length >= 11) return 'answer-text-sm';
+  if (name.length >= 9) return 'answer-text-md';
+  return '';
+}
+
 function renderAnswerButtons(answerOptions, selectedAnswer, checking, checkingAnswer, onAnswerClick) {
   return answerOptions.map(champ => {
     var isPending = checking && checkingAnswer === champ;
     var isBlocked = checking && checkingAnswer !== champ;
     var baseClass = selectedAnswer === champ ? "button-correct answer" : "answer";
     var stateClass = isPending ? "button-pending" : (isBlocked ? "button-transition" : "");
+    var sizeClass = getNameSizeClass(champ);
 
     return (
       <Button
@@ -17,7 +27,7 @@ function renderAnswerButtons(answerOptions, selectedAnswer, checking, checkingAn
         buttonValue={champ}
         onClick={onAnswerClick}
         disabled={isBlocked}
-        className={`${baseClass} ${stateClass}`}
+        className={`${baseClass} ${stateClass} ${sizeClass}`}
         playAudio
       />
     );
@@ -50,12 +60,12 @@ function QuizScreen({
             </div>
             <div className="py-6 items-center">
               {/* max-w matches the answer grid's rendered width so the timer aligns with the button, not the page edge */}
-              <div className="grid grid-cols-3 max-w-[672px]">
+              <div className="quiz-stats-bar grid grid-cols-3 max-w-[672px]">
                 <div className="score-title text-left uppercase">
-                  Score: {parseInt(score)} / 10
+                  Score:<br className="md:hidden" /> {parseInt(score)} / 10
                 </div>
                 <div className="score-title uppercase">
-                  Round: {parseInt(round)} / 10
+                  Round:<br className="md:hidden" /> {parseInt(round)} / 10
                 </div>
                 <div className="score-title text-right uppercase">
                   {formatElapsedTime(elapsedMs)}
