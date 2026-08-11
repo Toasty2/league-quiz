@@ -36,6 +36,7 @@ class QuizPage extends React.Component {
       wasUserCorrect: '',
       answered: false,
       checking: false,
+      checkingAnswer: null,
       score: 0,
       round: 0,
       started: false,
@@ -176,7 +177,7 @@ class QuizPage extends React.Component {
       return;
     }
 
-    this.setState({ checking: true });
+    this.setState({ checking: true, checkingAnswer: selected });
 
     checkAnswer(this.state.sessionId, this.state.round, selected).then(({ correct }) => {
       this.setState({ checking: false });
@@ -235,7 +236,8 @@ class QuizPage extends React.Component {
     this.setState({
       answerOptions: nextQuestion.options,
       answered: false,
-      wasUserCorrect: false
+      wasUserCorrect: false,
+      checkingAnswer: null
     });
   }
 
@@ -290,6 +292,8 @@ class QuizPage extends React.Component {
         answered={this.state.answered}
         wasUserCorrect={this.state.wasUserCorrect}
         selectedAnswer={this.state.onClick}
+        checking={this.state.checking}
+        checkingAnswer={this.state.checkingAnswer}
         score={this.state.score}
         elapsedMs={this.state.elapsedMs}
         resultGifUrl={this.state.resultGifUrl}

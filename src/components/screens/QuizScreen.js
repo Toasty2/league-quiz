@@ -3,10 +3,25 @@ import Champion from '../champion';
 import Button from '../button';
 import { formatElapsedTime } from '../../utils/formatTime';
 
-function renderAnswerButtons(answerOptions, selectedAnswer, onAnswerClick) {
-  return answerOptions.map(champ => (
-    <Button key={champ} id={champ} buttonValue={champ} onClick={onAnswerClick} className={`${selectedAnswer === champ ? "button-correct answer" : "answer"}`} playAudio />
-  ));
+function renderAnswerButtons(answerOptions, selectedAnswer, checking, checkingAnswer, onAnswerClick) {
+  return answerOptions.map(champ => {
+    var isPending = checking && checkingAnswer === champ;
+    var isBlocked = checking && checkingAnswer !== champ;
+    var baseClass = selectedAnswer === champ ? "button-correct answer" : "answer";
+    var stateClass = isPending ? "button-pending" : (isBlocked ? "button-transition" : "");
+
+    return (
+      <Button
+        key={champ}
+        id={champ}
+        buttonValue={champ}
+        onClick={onAnswerClick}
+        disabled={isBlocked}
+        className={`${baseClass} ${stateClass}`}
+        playAudio
+      />
+    );
+  });
 }
 
 function QuizScreen({
@@ -17,6 +32,8 @@ function QuizScreen({
   answered,
   wasUserCorrect,
   selectedAnswer,
+  checking,
+  checkingAnswer,
   score,
   elapsedMs,
   resultGifUrl,
@@ -47,7 +64,7 @@ function QuizScreen({
 
 
               <div className="grid grid-cols-2 gap-x-8 gap-y-6 py-6">
-                {answered ? "" : renderAnswerButtons(answerOptions, selectedAnswer, onAnswerClick)}
+                {answered ? "" : renderAnswerButtons(answerOptions, selectedAnswer, checking, checkingAnswer, onAnswerClick)}
               </div>
               <div className={`right-answer ${wasUserCorrect && answered ? "correct" : ""}`}>
                 <img src={resultGifUrl} alt="Correct reaction GIF" />
