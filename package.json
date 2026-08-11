@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^14.6.3",
     "axios": "^1.19.0",
     "canvas-confetti": "^1.9.4",
+    "compression": "^1.8.1",
     "express": "^5.2.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
