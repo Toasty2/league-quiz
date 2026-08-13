@@ -54,26 +54,23 @@
 
 @font-face {
     font-family: 'FritzQuadrata';
-    src: local('FritzQuadrata'),
-         url('./assets/fonts/FrizQuadrataTT.ttf') format('ttf');
+    src: url('./assets/fonts/FrizQuadrataTT.ttf') format('ttf');
 }
 
 @font-face {
     font-family: 'OpenSans';
-    src: local('OpenSans'),
-         url('./assets/fonts/OpenSans.ttf') format('ttf');
+    src: url('./assets/fonts/OpenSans.ttf') format('ttf');
 }
 
 @font-face {
     font-family: 'Poppins';
-    src: local('Poppins'),
-         url('./assets/fonts/Poppins-Regular.ttf') format('ttf');
+    src: url('./assets/fonts/Poppins-Regular.ttf') format('ttf');
 }
 
 @font-face {
     font-family: 'Beaufort';
-    src: local('Beaufort'),
-         url('./assets/fonts/BeaufortforLOL-Regular.ttf') format('ttf');
+    src: url('./assets/fonts/BeaufortforLOL-Heavy.ttf') format('ttf');
+    font-weight: 900;
 }
 
 .wrong-answer, .right-answer {
