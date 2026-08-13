@@ -5,6 +5,7 @@ import React from 'react';
 //import Stopwatch from '../components/stopwatch';
 import { preloadImage } from '../apis/ddragon';
 import { fetchGifPool } from '../apis/giphy';
+import { getPlayerName, setPlayerName } from '../apis/playerNamePreference';
 import { preloadTechniques } from '../components/obfuscation';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
 import StartScreen from '../components/screens/StartScreen';
@@ -63,7 +64,7 @@ class QuizPage extends React.Component {
       preparingQuiz: false,
       difficulty: null,
       readyToSubmit: false,
-      playerName: '',
+      playerName: getPlayerName(),
       submitting: false,
       elapsedMs: 0
     };
@@ -286,6 +287,7 @@ class QuizPage extends React.Component {
     }
 
     this.setState({ submitting: true });
+    setPlayerName(this.state.playerName.trim());
 
     submitQuiz(this.state.sessionId, this.state.playerName.trim()).then(() => {
       this.props.navigate(`/scoreboard?difficulty=${this.state.difficulty}`, {
