@@ -25,7 +25,7 @@ export function fetchGifPool(searchTerm, limit = 10) {
                 rating: 'g'
             }
         })
-        .then(response => response.data.data.map(gif => gif.images.original.url))
+        .then(response => response.data.data.map(gif => gif.images.fixed_height.url))
         .catch(error => {
             console.error('Failed to fetch GIF pool for "' + searchTerm + '"', error);
             return [];

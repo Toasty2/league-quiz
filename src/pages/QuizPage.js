@@ -4,11 +4,24 @@ import React from 'react';
 //import HeaderBar from '../components/headerBar';
 //import Stopwatch from '../components/stopwatch';
 import { preloadImage } from '../apis/ddragon';
+import { fetchGifPool } from '../apis/giphy';
 import { preloadTechniques } from '../components/obfuscation';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
 import QuizScreen from '../components/screens/QuizScreen';
+
+// Score bands for the results-screen reaction GIF - coarser than one term per
+// score so each band still has a decent-sized pool to pick from.
+const SCORE_BAND_TERMS = ['epic fail', 'yikes', 'meh', 'nice one', 'flawless victory'];
+
+function getScoreBandTerm(score) {
+  if (score >= 10) return 'flawless victory';
+  if (score >= 7) return 'nice one';
+  if (score >= 5) return 'meh';
+  if (score >= 3) return 'yikes';
+  return 'epic fail';
+}
 
 class QuizPage extends React.Component {
   state = {
@@ -33,6 +46,8 @@ class QuizPage extends React.Component {
       checking: false,
       checkingAnswer: null,
       correctChampName: null,
+      scoreGifPools: {},
+      resultGifUrl: null,
       score: 0,
       round: 0,
       started: false,
@@ -56,6 +71,11 @@ class QuizPage extends React.Component {
 
     this.setState({ preparingQuiz: true, difficulty });
 
+    // Fire-and-forget: nothing on the way to/during the quiz needs these,
+    // only the results screen at the very end - by then a full playthrough
+    // has given this far longer than it needs to resolve.
+    this.prefetchScoreGifs();
+
     this.sessionPromise.then(({ sessionId, questions }) => {
       return setDifficulty(sessionId, difficulty)
         .then(() => {
@@ -75,6 +95,18 @@ class QuizPage extends React.Component {
         });
     }).catch(() => {
       this.setState({ preparingQuiz: false, difficulty: null });
+    });
+  }
+
+  prefetchScoreGifs = () => {
+    SCORE_BAND_TERMS.forEach(term => {
+      fetchGifPool(term).then(gifs => {
+        if (gifs.length > 0) {
+          this.setState(prevState => ({
+            scoreGifPools: { ...prevState.scoreGifPools, [term]: gifs }
+          }));
+        }
+      });
     });
   }
 
@@ -207,7 +239,11 @@ class QuizPage extends React.Component {
 
   runNextRound = () => {
     if (this.state.round >= 10) {
-      this.setState({ readyToSubmit: true });
+      var bandTerm = getScoreBandTerm(this.state.score);
+      var pool = this.state.scoreGifPools[bandTerm];
+      var resultGifUrl = pool && pool.length > 0 ? this.pickRandomGif(pool) : null;
+
+      this.setState({ readyToSubmit: true, resultGifUrl });
       return;
     }
 
@@ -256,6 +292,7 @@ class QuizPage extends React.Component {
         <SubmitScoreScreen
           correctCount={this.state.score}
           elapsedMs={this.state.elapsedMs}
+          resultGifUrl={this.state.resultGifUrl}
           playerName={this.state.playerName}
           submitting={this.state.submitting}
           onNameChange={this.updatePlayerName}

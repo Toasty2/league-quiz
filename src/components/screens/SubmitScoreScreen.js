@@ -16,12 +16,17 @@ const scoreText = [
   "You a winner!"
 ];
 
-function SubmitScoreScreen({ correctCount, elapsedMs, playerName, submitting, onNameChange, onSubmit }) {
+function SubmitScoreScreen({ correctCount, elapsedMs, resultGifUrl, playerName, submitting, onNameChange, onSubmit }) {
   return (
     <div className="App">
       <div className="container-bg">
         <main className="app-container">
-          <div className="start-screen">
+          <div className="start-screen results-screen">
+            {resultGifUrl && (
+              <div className="result-gif">
+                <img src={resultGifUrl} alt="Reaction to your score" />
+              </div>
+            )}
             <h1 className="font-['Beaufort'] text-[90px] font-black leading-[113.76px] tracking-[-0.01em] text-[#F0E6D2] uppercase">{parseInt(correctCount)} / 10</h1>
             <h1 className="font-['Beaufort'] text-[48px] font-black leading-[113.76px] tracking-[-0.01em] text-[#F0E6D2] uppercase">{formatElapsedTime(elapsedMs)}</h1>
             <h1 className="score-title">{scoreText[parseInt(correctCount)]}</h1>
