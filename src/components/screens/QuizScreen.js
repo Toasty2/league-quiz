@@ -44,9 +44,9 @@ function QuizScreen({
   selectedAnswer,
   checking,
   checkingAnswer,
+  correctChampName,
   score,
   elapsedMs,
-  resultGifUrl,
   onAnswerClick,
   onNextRound
 }) {
@@ -77,11 +77,15 @@ function QuizScreen({
                 {answered ? "" : renderAnswerButtons(answerOptions, selectedAnswer, checking, checkingAnswer, onAnswerClick)}
               </div>
               <div className={`right-answer ${wasUserCorrect && answered ? "correct" : ""}`}>
-                <img src={resultGifUrl} alt="Correct reaction GIF" />
+                <h2 className="result-heading">Correct!</h2>
+                <p className="score-title">{correctChampName}</p>
+                <img src={require('../../assets/img/Bee_Correct.avif')} alt="Correct answer" />
                 <Button id="nextRound" buttonValue={round >= 10 ? "See results" : "Next round"} onClick={onNextRound} />
               </div>
               <div className={`wrong-answer ${!wasUserCorrect && answered ? "incorrect" : ""}`}>
-                <img src={resultGifUrl} alt="Incorrect reaction GIF" />
+                <h2 className="result-heading">Wrong!</h2>
+                <p className="score-title">{correctChampName}</p>
+                <img src={require('../../assets/img/Bee_Incorrect.avif')} alt="Wrong answer" />
                 <Button id="nextRound" buttonValue={round >= 10 ? "See results" : "Next round"} onClick={onNextRound} />
               </div>
             </div>

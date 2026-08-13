@@ -4,15 +4,11 @@ import React from 'react';
 //import HeaderBar from '../components/headerBar';
 //import Stopwatch from '../components/stopwatch';
 import { preloadImage } from '../apis/ddragon';
-import { fetchGifPool } from '../apis/giphy';
 import { preloadTechniques } from '../components/obfuscation';
 import { startQuizSession, setDifficulty, beginSession, checkAnswer, submitQuiz, getSplashProxyUrl } from '../apis/supabase';
 import StartScreen from '../components/screens/StartScreen';
 import SubmitScoreScreen from '../components/screens/SubmitScoreScreen';
 import QuizScreen from '../components/screens/QuizScreen';
-
-const DEFAULT_CORRECT_GIF = 'https://media0.giphy.com/media/3o7abKhOpu0NwenH3O/200w.webp?cid=ecf05e4790561tdhsbjxemeoujg2i7ir9nykpleg3zs15i0w&rid=200w.webp&ct=g';
-const DEFAULT_INCORRECT_GIF = 'https://c.tenor.com/zIm8X37R8cIAAAAC/b99-chelsea-peretti.gif';
 
 class QuizPage extends React.Component {
   state = {
@@ -36,6 +32,7 @@ class QuizPage extends React.Component {
       answered: false,
       checking: false,
       checkingAnswer: null,
+      correctChampName: null,
       score: 0,
       round: 0,
       started: false,
@@ -44,10 +41,7 @@ class QuizPage extends React.Component {
       readyToSubmit: false,
       playerName: '',
       submitting: false,
-      elapsedMs: 0,
-      correctGifPool: [DEFAULT_CORRECT_GIF],
-      incorrectGifPool: [DEFAULT_INCORRECT_GIF],
-      resultGifUrl: DEFAULT_CORRECT_GIF
+      elapsedMs: 0
     };
   }
 
@@ -101,22 +95,6 @@ class QuizPage extends React.Component {
 
   componentDidMount = () => {
     this.sessionPromise = startQuizSession();
-
-    fetchGifPool('correct').then(gifs => {
-      if (gifs.length > 0) {
-        this.setState(prevState => ({
-          correctGifPool: [...prevState.correctGifPool, ...gifs]
-        }));
-      }
-    });
-
-    fetchGifPool('incorrect').then(gifs => {
-      if (gifs.length > 0) {
-        this.setState(prevState => ({
-          incorrectGifPool: [...prevState.incorrectGifPool, ...gifs]
-        }));
-      }
-    });
   }
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -189,9 +167,9 @@ class QuizPage extends React.Component {
     this.pauseTimer();
     this.setState({ checking: true, checkingAnswer: selected });
 
-    checkAnswer(this.state.sessionId, this.state.round, selected).then(({ correct }) => {
+    checkAnswer(this.state.sessionId, this.state.round, selected).then(({ correct, correctChampName }) => {
       this.setState({ checking: false });
-      correct ? this.handleCorrectAnswer(selected) : this.handleIncorrectAnswer();
+      correct ? this.handleCorrectAnswer(selected, correctChampName) : this.handleIncorrectAnswer(correctChampName);
     });
   }
 
@@ -202,7 +180,7 @@ class QuizPage extends React.Component {
     return pool[randomIndex];
   }
 
-  handleCorrectAnswer = (onClick) => {
+  handleCorrectAnswer = (onClick, correctChampName) => {
     var newScore = this.state.score + 1;
     var newRound = this.state.round + 1;
 
@@ -212,18 +190,18 @@ class QuizPage extends React.Component {
       onClick: onClick,
       score: newScore,
       round: newRound,
-      resultGifUrl: this.pickRandomGif(this.state.correctGifPool)
+      correctChampName: correctChampName
     });
   }
 
-  handleIncorrectAnswer = () => {
+  handleIncorrectAnswer = (correctChampName) => {
     var newRound = this.state.round + 1;
 
     this.setState({
       wasUserCorrect: false,
       answered: true,
       round: newRound,
-      resultGifUrl: this.pickRandomGif(this.state.incorrectGifPool)
+      correctChampName: correctChampName
     });
   }
 
@@ -239,7 +217,8 @@ class QuizPage extends React.Component {
       answerOptions: nextQuestion.options,
       answered: false,
       wasUserCorrect: false,
-      checkingAnswer: null
+      checkingAnswer: null,
+      correctChampName: null
     });
   }
 
@@ -296,9 +275,9 @@ class QuizPage extends React.Component {
         selectedAnswer={this.state.onClick}
         checking={this.state.checking}
         checkingAnswer={this.state.checkingAnswer}
+        correctChampName={this.state.correctChampName}
         score={this.state.score}
         elapsedMs={this.state.elapsedMs}
-        resultGifUrl={this.state.resultGifUrl}
         onAnswerClick={this.onAnswerClick}
         onNextRound={this.runNextRound}
       />

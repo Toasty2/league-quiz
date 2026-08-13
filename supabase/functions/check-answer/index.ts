@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
 
     if (updateError) throw updateError;
 
-    return new Response(JSON.stringify({ correct }), {
+    return new Response(JSON.stringify({ correct, correctChampName: question.correctChampName }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
