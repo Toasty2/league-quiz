@@ -382,6 +382,31 @@
     object-fit: cover;
 }
 
+.ember-effect {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+@keyframes streak-ignite-shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    10% { transform: translateX(-4px) rotate(-1deg); }
+    20% { transform: translateX(5px) rotate(1.2deg); }
+    30% { transform: translateX(-6px) rotate(-1.5deg); }
+    40% { transform: translateX(6px) rotate(1.5deg); }
+    50% { transform: translateX(-4px) rotate(-1deg); }
+    60% { transform: translateX(4px) rotate(1deg); }
+    70% { transform: translateX(-2px) rotate(-0.5deg); }
+    80% { transform: translateX(2px) rotate(0.5deg); }
+    90% { transform: translateX(-1px) rotate(0deg); }
+}
+
+.streak-ignite {
+    animation: streak-ignite-shake 0.5s ease-in-out;
+}
+
 .champion-border {
     /* champ_border.png (268x592) has no intrinsic tie to the card size -
        scale by height and let width follow its own aspect ratio, rather

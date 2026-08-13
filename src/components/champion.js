@@ -1,6 +1,9 @@
 import React from 'react';
 import { getSplashProxyUrl } from '../apis/supabase';
 import { getTechniqueForRound, getRevealDuration, buildChallengerSequence } from './obfuscation';
+import EmberEffect from './EmberEffect';
+
+const IGNITE_DURATION_MS = 500;
 
 class Champion extends React.Component {
 
@@ -21,7 +24,14 @@ class Champion extends React.Component {
             flipped: false,
             frontContent: { type: 'cardback' },
             backContent: null,
-            revealProgress: 1
+            revealProgress: 1,
+            // Tracked here (not on the flip-card content itself) because a
+            // result face gets overwritten by the next round's content once
+            // it flips away, but the streak needs to remember which tier it
+            // already ignited across that - staying at the same tier on a
+            // later round should resume burning silently, not replay the ignite.
+            streakPhase: 'idle',
+            ignitedTier: 0
         };
     }
 
@@ -111,7 +121,34 @@ class Champion extends React.Component {
 
     showResult = () => {
         this.stopReveal();
-        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, this.activeRound), technique: null });
+        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, this.activeRound), technique: null, isResult: true });
+    }
+
+    // Tier increasing plays the ignite sequence once the flip has finished
+    // revealing the result, then burns at the new tier; staying at the same
+    // tier resumes burning with no replay.
+    igniteToTier = (streakTier) => {
+        clearTimeout(this.igniteTimeout);
+
+        if (streakTier > this.state.ignitedTier) {
+            this.setState({ streakPhase: 'igniting' });
+
+            this.igniteTimeout = setTimeout(() => {
+                this.setState({ streakPhase: 'burning', ignitedTier: streakTier });
+            }, IGNITE_DURATION_MS);
+        } else {
+            this.setState({ streakPhase: 'burning' });
+        }
+    }
+
+    // Runs once the flip-to-result CSS transition genuinely completes - the
+    // ignite must not start any earlier, or its animation clock would
+    // already be partway through by the time the card is actually visible.
+    handleFlipTransitionEnd = () => {
+        if (this.pendingIgniteTier !== undefined) {
+            this.igniteToTier(this.pendingIgniteTier);
+            this.pendingIgniteTier = undefined;
+        }
     }
 
     componentDidMount = () => {
@@ -120,6 +157,7 @@ class Champion extends React.Component {
 
     componentWillUnmount = () => {
         this.stopReveal();
+        clearTimeout(this.igniteTimeout);
     }
 
     componentDidUpdate = (prevProps, prevState) => {
@@ -138,6 +176,18 @@ class Champion extends React.Component {
         } else if (!prevProps.answered && this.props.answered) {
             this.showResult();
         }
+
+        if (prevProps.streakTier !== this.props.streakTier) {
+            if (this.props.streakTier <= 0) {
+                // A broken streak needs no ceremony - clear immediately
+                // rather than leaving a lingering ember through the flip.
+                clearTimeout(this.igniteTimeout);
+                this.pendingIgniteTier = undefined;
+                this.setState({ streakPhase: 'idle', ignitedTier: 0 });
+            } else {
+                this.pendingIgniteTier = this.props.streakTier;
+            }
+        }
     }
 
     renderFace = (content) => {
@@ -152,8 +202,10 @@ class Champion extends React.Component {
         if (content.type === 'splash') {
             var Technique = content.technique;
             var spinClass = (this.props.difficulty === 'challenger' && Technique) ? ' champion-splash-spin' : '';
+            var igniteClass = (content.isResult && this.state.streakPhase === 'igniting') ? ' streak-ignite' : '';
+
             return (
-                <div className={`ui relaxed divided list test champion-splash relative${spinClass}`}>
+                <div className={`ui relaxed divided list test champion-splash relative${spinClass}${igniteClass}`}>
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
                     {/* No fallback: preloadTechniques means this never actually suspends. */}
                     {Technique
@@ -168,6 +220,9 @@ class Champion extends React.Component {
                             </React.Suspense>
                           )
                         : <img src={content.proxyUrl} alt="Champion splash art" className="champion-splash-art" />}
+                    {content.isResult && this.state.streakPhase === 'burning' && (
+                        <EmberEffect tier={this.state.ignitedTier} />
+                    )}
                 </div>
             );
         }
@@ -178,7 +233,10 @@ class Champion extends React.Component {
     render() {
         return (
             <div className="flip-card">
-                <div className={`flip-card-inner ${this.state.flipped ? 'flipped' : ''}`}>
+                <div
+                    className={`flip-card-inner ${this.state.flipped ? 'flipped' : ''}`}
+                    onTransitionEnd={this.handleFlipTransitionEnd}
+                >
                     <div className="flip-card-front">
                         {this.renderFace(this.state.frontContent)}
                     </div>

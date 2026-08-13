@@ -31,7 +31,7 @@ function SubmitScoreScreen({ correctCount, elapsedMs, resultGifUrl, playerName, 
             <h1 className="font-['Beaufort'] text-[48px] font-black leading-[113.76px] tracking-[-0.01em] text-[#F0E6D2] uppercase">{formatElapsedTime(elapsedMs)}</h1>
             <h1 className="score-title">{scoreText[parseInt(correctCount)]}</h1>
             <p className="font-['Beaufort'] font-normal text-[18px] text-[#F0E6D2] text-center max-w-md">Enter your name to submit your score and see the scoreboard</p>
-            <input type="text" value={playerName} onChange={onNameChange} maxLength={30} />
+            <input type="text" value={playerName} onChange={onNameChange} maxLength={30} className="text-center" />
             <Button id="submitScore" buttonValue={submitting ? "Submitting..." : "Submit score"} onClick={onSubmit} />
           </div>
         </main>

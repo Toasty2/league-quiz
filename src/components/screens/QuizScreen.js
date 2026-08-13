@@ -45,6 +45,7 @@ function QuizScreen({
   checking,
   checkingAnswer,
   correctChampName,
+  streakTier,
   score,
   elapsedMs,
   onAnswerClick,
@@ -56,7 +57,7 @@ function QuizScreen({
         <main className="app-container">
           <div className="grid grid-cols-1 md:grid-cols-2 items-center">
             <div className="py-6 mx-auto">
-              <Champion sessionId={sessionId} round={round} difficulty={difficulty} answerOptions={answerOptions} answered={answered} wasUserCorrect={wasUserCorrect} />
+              <Champion sessionId={sessionId} round={round} difficulty={difficulty} answerOptions={answerOptions} answered={answered} wasUserCorrect={wasUserCorrect} streakTier={streakTier} />
             </div>
             <div className="py-6 items-center">
               {/* max-w matches the answer grid's rendered width so the timer aligns with the button, not the page edge */}

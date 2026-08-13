@@ -23,6 +23,14 @@ function getScoreBandTerm(score) {
   return 'epic fail';
 }
 
+// Matches League's real killing spree / unstoppable / godlike thresholds.
+function getStreakTier(count) {
+  if (count >= 7) return 3;
+  if (count >= 5) return 2;
+  if (count >= 3) return 1;
+  return 0;
+}
+
 class QuizPage extends React.Component {
   state = {
     onClick: '',
@@ -48,6 +56,7 @@ class QuizPage extends React.Component {
       correctChampName: null,
       scoreGifPools: {},
       resultGifUrl: null,
+      streakTier: 0,
       score: 0,
       round: 0,
       started: false,
@@ -58,6 +67,11 @@ class QuizPage extends React.Component {
       submitting: false,
       elapsedMs: 0
     };
+
+    // Correct-answers-in-a-row - only its derived tier affects rendering, so
+    // this doesn't need to be state itself (mirrors this.activeRound in
+    // champion.js).
+    this.streakCount = 0;
   }
 
   componentWillUnmount = () => {
@@ -215,6 +229,7 @@ class QuizPage extends React.Component {
   handleCorrectAnswer = (onClick, correctChampName) => {
     var newScore = this.state.score + 1;
     var newRound = this.state.round + 1;
+    this.streakCount += 1;
 
     this.setState({
       wasUserCorrect: true,
@@ -222,18 +237,21 @@ class QuizPage extends React.Component {
       onClick: onClick,
       score: newScore,
       round: newRound,
-      correctChampName: correctChampName
+      correctChampName: correctChampName,
+      streakTier: getStreakTier(this.streakCount)
     });
   }
 
   handleIncorrectAnswer = (correctChampName) => {
     var newRound = this.state.round + 1;
+    this.streakCount = 0;
 
     this.setState({
       wasUserCorrect: false,
       answered: true,
       round: newRound,
-      correctChampName: correctChampName
+      correctChampName: correctChampName,
+      streakTier: 0
     });
   }
 
@@ -313,6 +331,7 @@ class QuizPage extends React.Component {
         checking={this.state.checking}
         checkingAnswer={this.state.checkingAnswer}
         correctChampName={this.state.correctChampName}
+        streakTier={this.state.streakTier}
         score={this.state.score}
         elapsedMs={this.state.elapsedMs}
         onAnswerClick={this.onAnswerClick}
