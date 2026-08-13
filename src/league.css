@@ -69,6 +69,12 @@
 
 @font-face {
     font-family: 'Beaufort';
+    src: url('./assets/fonts/BeaufortforLOL-Regular.ttf') format('ttf');
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Beaufort';
     src: url('./assets/fonts/BeaufortforLOL-Heavy.ttf') format('ttf');
     font-weight: 900;
 }
