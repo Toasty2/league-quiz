@@ -74,6 +74,7 @@ class Champion extends React.Component {
 
     loadChamp = (round) => {
         this.stopReveal();
+        this.activeRound = round;
 
         var technique = null;
         if (this.props.difficulty === 'hard') {
@@ -108,9 +109,9 @@ class Champion extends React.Component {
         clearInterval(this.revealInterval);
     }
 
-    showResult = (wasUserCorrect) => {
+    showResult = () => {
         this.stopReveal();
-        this.flipToShow({ type: 'result', correct: wasUserCorrect });
+        this.flipToShow({ type: 'splash', proxyUrl: getSplashProxyUrl(this.props.sessionId, this.activeRound), technique: null });
     }
 
     componentDidMount = () => {
@@ -135,7 +136,7 @@ class Champion extends React.Component {
         if (prevProps.answerOptions !== this.props.answerOptions) {
             this.loadChamp(this.props.round);
         } else if (!prevProps.answered && this.props.answered) {
-            this.showResult(this.props.wasUserCorrect);
+            this.showResult();
         }
     }
 
@@ -148,15 +149,9 @@ class Champion extends React.Component {
             return <img src={require('../assets/img/card.png')} alt="Face-down champion card" className="flip-card-plain-image" />;
         }
 
-        if (content.type === 'result') {
-            var resultImage = content.correct ? require('../assets/img/card_correct.png') : require('../assets/img/card_incorrect.png');
-            var resultAlt = content.correct ? 'Correct answer' : 'Incorrect answer';
-            return <img src={resultImage} alt={resultAlt} className="flip-card-plain-image" />;
-        }
-
         if (content.type === 'splash') {
             var Technique = content.technique;
-            var spinClass = this.props.difficulty === 'challenger' ? ' champion-splash-spin' : '';
+            var spinClass = (this.props.difficulty === 'challenger' && Technique) ? ' champion-splash-spin' : '';
             return (
                 <div className={`ui relaxed divided list test champion-splash relative${spinClass}`}>
                     <img src={require('../assets/img/champ_border.png')} alt="" className="absolute pl-4 pt-4 -top-0.5 champion-border" />
